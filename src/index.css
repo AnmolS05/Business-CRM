@@ -1,0 +1,68 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  button:not(:disabled) {
+    @apply active:scale-95 transition-transform;
+  }
+  input, select, textarea {
+    @apply focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-blue-500/10 transition-all duration-300;
+  }
+}
+
+@layer utilities {
+  .font-serif {
+    font-family: 'Outfit', sans-serif;
+  }
+  .font-sans {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .glass-panel {
+    @apply bg-white/80 dark:bg-slate-900/60 backdrop-blur-2xl border border-gray-200/80 dark:border-slate-700/50 shadow-xl dark:shadow-indigo-900/10;
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 relative min-h-screen;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image: radial-gradient(circle at 2px 2px, rgba(148, 163, 184, 0.15) 1px, transparent 0);
+  background-size: 32px 32px;
+}
+
+html.dark body::before {
+  background-image: radial-gradient(circle at 2px 2px, rgba(148, 163, 184, 0.05) 1px, transparent 0);
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300/80 dark:bg-slate-700/80 rounded-full border-2 border-transparent bg-clip-padding;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-slate-500 border-2 border-transparent bg-clip-padding;
+}
