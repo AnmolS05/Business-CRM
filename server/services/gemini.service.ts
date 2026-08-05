@@ -82,3 +82,10 @@ export async function generateBusinessRecommendations(params: BusinessRecommenda
 
 /**
  * Analyzes financial document files (PDFs, images, CSVs, TXT) and returns structured analysis.
+ *
+ * @param {FileAnalysisPayload} file File payload containing buffer, MIME type, and filename.
+ * @returns {Promise<string>} Raw output text combining Markdown summary and optional JSON chart data.
+ */
+export async function analyzeDocumentFile(file: FileAnalysisPayload): Promise<string> {
+  const ai = getGemmaClient();
+  const base64Data = file.buffer.toString('base64');
