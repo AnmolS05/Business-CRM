@@ -33,3 +33,10 @@ export interface BusinessRecommendationsRequest {
 
 /**
  * Interface representing a structured file attachment for multimodal Gemini 2.5 Flash Lite analysis.
+ */
+export interface FileAnalysisPayload {
+  buffer: Buffer;
+  mimeType: string;
+  originalname: string;
+}
+
