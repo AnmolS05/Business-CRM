@@ -110,3 +110,10 @@ PART 1: A clean markdown text summary containing:
 - Key Highlights & Financial Breakdown
 - Key Trends, Anomalies, or Risks
 Format all monetary values in Indian Rupees (₹) using Lakhs/Crores format where appropriate. Keep the written analysis clear, structured, and concise.
+
+PART 2: If the document contains numerical, financial, or comparative data that can be visually compared (e.g., line items, subtotal vs tax, projected vs actual, Q1 vs Q2, expense categories, revenue streams, year-over-year figures, etc.), provide a strictly formatted JSON block wrapped in \`\`\`json ... \`\`\` code blocks containing the comparison data.
+
+Structure the JSON EXACTLY like this:
+\`\`\`json
+{
+  "chartTitle": "Descriptive Chart Title (e.g., Q1 vs Q2 Expense Comparison)",
