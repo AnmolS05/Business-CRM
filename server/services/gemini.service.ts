@@ -89,3 +89,10 @@ export async function generateBusinessRecommendations(params: BusinessRecommenda
 export async function analyzeDocumentFile(file: FileAnalysisPayload): Promise<string> {
   const ai = getGemmaClient();
   const base64Data = file.buffer.toString('base64');
+  let mimeType = file.mimeType;
+
+  // Fallback MIME type resolution if unmapped or application/octet-stream
+  if (!mimeType || mimeType === 'application/octet-stream') {
+    const ext = file.originalname.toLowerCase();
+    if (ext.endsWith('.pdf')) mimeType = 'application/pdf';
+    else if (ext.endsWith('.png')) mimeType = 'image/png';
