@@ -34,3 +34,10 @@ export async function getWhatsAppFollowUp(req: Request, res: Response): Promise<
   }
 }
 
+/**
+ * Controller endpoint for generating Gemini AI business strategy recommendations.
+ *
+ * @param {Request} req Express request object containing business revenue & expense metrics.
+ * @param {Response} res Express response object returning bulleted strategic recommendations.
+ */
+export async function getBusinessRecommendations(req: Request, res: Response): Promise<void> {
