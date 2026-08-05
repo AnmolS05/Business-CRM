@@ -61,3 +61,10 @@ export async function generateWhatsAppFollowUp(params: WhatsAppFollowUpRequest):
 }
 
 /**
+ * Synthesizes business performance data into actionable strategic recommendations.
+ *
+ * @param {BusinessRecommendationsRequest} params Summary figures including top category and totals.
+ * @returns {Promise<string>} Concise bulleted strategic recommendations.
+ */
+export async function generateBusinessRecommendations(params: BusinessRecommendationsRequest): Promise<string> {
+  const ai = getGemmaClient();
