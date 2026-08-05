@@ -54,3 +54,10 @@ export async function generateWhatsAppFollowUp(params: WhatsAppFollowUpRequest):
 
   const response = await ai.models.generateContent({
     model: 'gemini-3.1-flash-lite',
+    contents: prompt,
+  });
+
+  return response.text || '';
+}
+
+/**
