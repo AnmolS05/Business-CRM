@@ -131,3 +131,10 @@ Structure the JSON EXACTLY like this:
   ]
 }
 \`\`\`
+
+Notes:
+1. "chartType" MUST be either "bar" or "line".
+2. All numbers inside "data" arrays must be raw numeric integers or floats (no currency symbols or string values).
+3. If there are no numerical or comparative figures in the document to plot, omit the \`\`\`json block entirely.`;
+
+  const inlinePart = {
