@@ -12,3 +12,10 @@ export function getGemmaClient(): GoogleGenAI {
 }
 
 /**
+ * Interface representing the parameters required to generate a WhatsApp follow-up draft.
+ */
+export interface WhatsAppFollowUpRequest {
+  client_name: string;
+  product_category?: string;
+  deal_value?: number;
+  stage?: string;
