@@ -69,3 +69,10 @@ export async function analyzeDocument(req: Request, res: Response): Promise<void
   try {
     if (!req.file) {
       res.status(400).json({ error: 'No document file was uploaded.' });
+      return;
+    }
+
+    const markdownSummary = await analyzeDocumentFile({
+      buffer: req.file.buffer,
+      mimeType: req.file.mimetype,
+      originalname: req.file.originalname,
