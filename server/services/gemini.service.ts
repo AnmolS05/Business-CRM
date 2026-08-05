@@ -40,3 +40,10 @@ export interface FileAnalysisPayload {
   originalname: string;
 }
 
+/**
+ * Generates a polite, respectful WhatsApp follow-up draft tailored to Indian enterprise clients.
+ *
+ * @param {WhatsAppFollowUpRequest} params Deal details including client name, product category, and value.
+ * @returns {Promise<string>} Generated text message suitable for WhatsApp communication.
+ */
+export async function generateWhatsAppFollowUp(params: WhatsAppFollowUpRequest): Promise<string> {
