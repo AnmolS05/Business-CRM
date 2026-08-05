@@ -62,3 +62,10 @@ export async function getBusinessRecommendations(req: Request, res: Response): P
 /**
  * Controller endpoint for analyzing uploaded financial documents via Gemini 3.6 Flash.
  *
+ * @param {Request} req Express request object containing uploaded file in req.file.
+ * @param {Response} res Express response object returning Markdown summary and chart payload.
+ */
+export async function analyzeDocument(req: Request, res: Response): Promise<void> {
+  try {
+    if (!req.file) {
+      res.status(400).json({ error: 'No document file was uploaded.' });
