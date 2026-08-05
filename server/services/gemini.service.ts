@@ -124,3 +124,10 @@ Structure the JSON EXACTLY like this:
       "label": "Series 1 Name (e.g., Projected (₹))",
       "data": [100000, 150000, 200000]
     },
+    {
+      "label": "Series 2 Name (e.g., Actual (₹))",
+      "data": [95000, 160000, 210000]
+    }
+  ]
+}
+\`\`\`
