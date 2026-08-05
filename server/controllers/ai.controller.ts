@@ -41,3 +41,10 @@ export async function getWhatsAppFollowUp(req: Request, res: Response): Promise<
  * @param {Response} res Express response object returning bulleted strategic recommendations.
  */
 export async function getBusinessRecommendations(req: Request, res: Response): Promise<void> {
+  try {
+    const { topProduct, topProductRevenue, totalSales, totalExpenses } = req.body;
+
+    const recommendations = await generateBusinessRecommendations({
+      topProduct: topProduct ? String(topProduct) : undefined,
+      topProductRevenue: topProductRevenue !== undefined ? Number(topProductRevenue) : undefined,
+      totalSales: totalSales !== undefined ? Number(totalSales) : undefined,
