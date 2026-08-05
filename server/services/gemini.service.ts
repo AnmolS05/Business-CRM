@@ -138,3 +138,10 @@ Notes:
 3. If there are no numerical or comparative figures in the document to plot, omit the \`\`\`json block entirely.`;
 
   const inlinePart = {
+    inlineData: {
+      mimeType,
+      data: base64Data,
+    },
+  };
+
+  const response = await ai.models.generateContent({
