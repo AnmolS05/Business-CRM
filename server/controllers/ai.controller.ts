@@ -83,3 +83,8 @@ export async function analyzeDocument(req: Request, res: Response): Promise<void
       filename: req.file.originalname,
     });
   } catch (err: unknown) {
+    console.error('[AI Document Analysis Error]:', err);
+    const message = err instanceof Error ? err.message : 'Failed to analyze document.';
+    res.status(500).json({ error: message });
+  }
+}
