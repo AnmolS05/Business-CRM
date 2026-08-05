@@ -68,3 +68,10 @@ export async function generateWhatsAppFollowUp(params: WhatsAppFollowUpRequest):
  */
 export async function generateBusinessRecommendations(params: BusinessRecommendationsRequest): Promise<string> {
   const ai = getGemmaClient();
+  const { topProduct, topProductRevenue, totalSales, totalExpenses } = params;
+
+  const prompt = `Here is my business summary: Top Product Category is ${topProduct || 'General'} generating ${topProductRevenue || 0} INR. Total sales are ${totalSales || 0} INR. Total expenses are ${totalExpenses || 0} INR. Provide 2 highly specific, actionable recommendations in bullet points for a business owner in India to improve margins or increase sales.`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3.1-flash-lite',
+    contents: prompt,
