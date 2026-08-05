@@ -75,3 +75,10 @@ export async function generateBusinessRecommendations(params: BusinessRecommenda
   const response = await ai.models.generateContent({
     model: 'gemini-3.1-flash-lite',
     contents: prompt,
+  });
+
+  return response.text || '';
+}
+
+/**
+ * Analyzes financial document files (PDFs, images, CSVs, TXT) and returns structured analysis.
