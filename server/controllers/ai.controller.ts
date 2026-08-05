@@ -20,3 +20,10 @@ export async function getWhatsAppFollowUp(req: Request, res: Response): Promise<
     }
 
     const draft = await generateWhatsAppFollowUp({
+      client_name: String(client_name),
+      product_category: product_category ? String(product_category) : undefined,
+      deal_value: deal_value !== undefined ? Number(deal_value) : undefined,
+      stage: stage ? String(stage) : undefined,
+    });
+
+    res.json({ draft });
