@@ -103,3 +103,10 @@ export async function analyzeDocumentFile(file: FileAnalysisPayload): Promise<st
 
   const prompt = `Analyze this financial document (${file.originalname}).
 
+Provide your response in TWO distinct parts within a single output:
+
+PART 1: A clean markdown text summary containing:
+- Executive Overview & Total Value
+- Key Highlights & Financial Breakdown
+- Key Trends, Anomalies, or Risks
+Format all monetary values in Indian Rupees (₹) using Lakhs/Crores format where appropriate. Keep the written analysis clear, structured, and concise.
