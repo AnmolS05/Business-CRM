@@ -55,3 +55,10 @@ export async function getBusinessRecommendations(req: Request, res: Response): P
   } catch (err: unknown) {
     console.error('[AI Recommendations Error]:', err);
     const message = err instanceof Error ? err.message : 'Failed to generate business recommendations.';
+    res.status(500).json({ error: message });
+  }
+}
+
+/**
+ * Controller endpoint for analyzing uploaded financial documents via Gemini 3.6 Flash.
+ *
