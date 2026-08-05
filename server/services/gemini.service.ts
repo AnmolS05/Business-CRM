@@ -117,3 +117,10 @@ Structure the JSON EXACTLY like this:
 \`\`\`json
 {
   "chartTitle": "Descriptive Chart Title (e.g., Q1 vs Q2 Expense Comparison)",
+  "chartType": "bar",
+  "labels": ["Label 1", "Label 2", "Label 3"],
+  "datasets": [
+    {
+      "label": "Series 1 Name (e.g., Projected (₹))",
+      "data": [100000, 150000, 200000]
+    },
