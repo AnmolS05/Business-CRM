@@ -19,3 +19,10 @@ export interface WhatsAppFollowUpRequest {
   product_category?: string;
   deal_value?: number;
   stage?: string;
+}
+
+/**
+ * Interface representing the payload required to generate business strategy recommendations.
+ */
+export interface BusinessRecommendationsRequest {
+  topProduct?: string;
