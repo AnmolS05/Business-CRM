@@ -96,3 +96,10 @@ export async function analyzeDocumentFile(file: FileAnalysisPayload): Promise<st
     const ext = file.originalname.toLowerCase();
     if (ext.endsWith('.pdf')) mimeType = 'application/pdf';
     else if (ext.endsWith('.png')) mimeType = 'image/png';
+    else if (ext.endsWith('.jpg') || ext.endsWith('.jpeg')) mimeType = 'image/jpeg';
+    else if (ext.endsWith('.csv')) mimeType = 'text/csv';
+    else mimeType = 'text/plain';
+  }
+
+  const prompt = `Analyze this financial document (${file.originalname}).
+
