@@ -145,3 +145,9 @@ Notes:
   };
 
   const response = await ai.models.generateContent({
+    model: 'gemini-3.1-flash-lite',
+    contents: { parts: [inlinePart, { text: prompt }] },
+  });
+
+  return response.text || 'Unable to parse document summary.';
+}
