@@ -26,3 +26,10 @@ export interface WhatsAppFollowUpRequest {
  */
 export interface BusinessRecommendationsRequest {
   topProduct?: string;
+  topProductRevenue?: number;
+  totalSales?: number;
+  totalExpenses?: number;
+}
+
+/**
+ * Interface representing a structured file attachment for multimodal Gemini 2.5 Flash Lite analysis.
