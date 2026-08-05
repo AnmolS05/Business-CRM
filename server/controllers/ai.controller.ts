@@ -48,3 +48,10 @@ export async function getBusinessRecommendations(req: Request, res: Response): P
       topProduct: topProduct ? String(topProduct) : undefined,
       topProductRevenue: topProductRevenue !== undefined ? Number(topProductRevenue) : undefined,
       totalSales: totalSales !== undefined ? Number(totalSales) : undefined,
+      totalExpenses: totalExpenses !== undefined ? Number(totalExpenses) : undefined,
+    });
+
+    res.json({ recommendations });
+  } catch (err: unknown) {
+    console.error('[AI Recommendations Error]:', err);
+    const message = err instanceof Error ? err.message : 'Failed to generate business recommendations.';
