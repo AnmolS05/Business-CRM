@@ -27,3 +27,10 @@ export async function getWhatsAppFollowUp(req: Request, res: Response): Promise<
     });
 
     res.json({ draft });
+  } catch (err: unknown) {
+    console.error('[AI WhatsApp Follow-up Error]:', err);
+    const message = err instanceof Error ? err.message : 'Failed to generate WhatsApp follow-up draft.';
+    res.status(500).json({ error: message });
+  }
+}
+
