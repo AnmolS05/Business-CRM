@@ -76,3 +76,10 @@ export async function analyzeDocument(req: Request, res: Response): Promise<void
       buffer: req.file.buffer,
       mimeType: req.file.mimetype,
       originalname: req.file.originalname,
+    });
+
+    res.json({
+      markdownSummary,
+      filename: req.file.originalname,
+    });
+  } catch (err: unknown) {
