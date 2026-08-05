@@ -13,3 +13,10 @@ import {
  */
 export async function getWhatsAppFollowUp(req: Request, res: Response): Promise<void> {
   try {
+    const { client_name, product_category, deal_value, stage } = req.body;
+    if (!client_name) {
+      res.status(400).json({ error: 'client_name is a required parameter.' });
+      return;
+    }
+
+    const draft = await generateWhatsAppFollowUp({
