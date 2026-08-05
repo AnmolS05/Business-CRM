@@ -47,3 +47,10 @@ export interface FileAnalysisPayload {
  * @returns {Promise<string>} Generated text message suitable for WhatsApp communication.
  */
 export async function generateWhatsAppFollowUp(params: WhatsAppFollowUpRequest): Promise<string> {
+  const ai = getGemmaClient();
+  const { client_name, product_category, deal_value, stage } = params;
+
+  const prompt = `Write a polite, warm, and brief WhatsApp follow-up message to ${client_name} regarding their interest in ${product_category || 'our services'} valued at ${deal_value || 0} INR. Stage: ${stage || 'Lead'}. Keep it in a respectful Indian business tone. Do not use placeholders. Keep it under 60 words and suitable for direct sending via WhatsApp.`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3.1-flash-lite',
