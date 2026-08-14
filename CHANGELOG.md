@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## [2026-08-14T12:30:00+05:30] Refactored README for Enterprise Standard
+
+### Description
+- Completely revamped `README.md` to adhere to enterprise standard repository requirements.
+- Added comprehensive sections on architecture, prerequisite tooling, detailed installation steps, and production deployment scripts.
+- Included guidelines for testing and contributing, adhering to project doctrine.
+
+### Files Affected
+- `README.md`
+- `CHANGELOG.md`
+
 ## [2026-08-09T11:40:00+05:30] Committed and Pushed Phase 3 Frontend Files
 
 ### Description
