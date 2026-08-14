@@ -1,0 +1,8 @@
+expense_name,amount,type,date_logged
+"Office Rent (Koramangala HQ)",85000,Fixed,2026-07-01
+"AWS & Cloud Hosting",28000,Fixed,2026-07-05
+"Engineering & Sales Payroll",350000,Fixed,2026-07-01
+"Client Lunch with Tata Team",12500,Variable,2026-07-12
+"Sales Flight to Mumbai",24000,Variable,2026-07-18
+"SaaS Subscriptions & Tools",15000,Fixed,2026-07-10
+"Google Ads & Lead Gen Campaign",45000,Variable,2026-07-22

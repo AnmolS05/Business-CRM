@@ -1,0 +1,136 @@
+{
+  "deals": [
+    {
+      "id": "deal-1",
+      "client_name": "Tata Digital Ltd",
+      "phone_number": "919876543210",
+      "deal_value": 2500000,
+      "stage": "Won",
+      "product_category": "Software",
+      "close_date": "2026-05-15"
+    },
+    {
+      "id": "deal-2",
+      "client_name": "Reliance Retail",
+      "phone_number": "919812345678",
+      "deal_value": 1250000,
+      "stage": "Won",
+      "product_category": "Software",
+      "close_date": "2026-06-10"
+    },
+    {
+      "id": "deal-3",
+      "client_name": "Infosys Tech Systems",
+      "phone_number": "919711223344",
+      "deal_value": 800000,
+      "stage": "Won",
+      "product_category": "Consulting",
+      "close_date": "2026-07-02"
+    },
+    {
+      "id": "deal-4",
+      "client_name": "Mahindra Logistics",
+      "phone_number": "919655443322",
+      "deal_value": 450000,
+      "stage": "Proposal Sent",
+      "product_category": "Software",
+      "close_date": "2026-08-20"
+    },
+    {
+      "id": "deal-5",
+      "client_name": "Adani Green Energy",
+      "phone_number": "919544332211",
+      "deal_value": 1800000,
+      "stage": "Contacted",
+      "product_category": "AMC Services",
+      "close_date": "2026-09-01"
+    },
+    {
+      "id": "deal-6",
+      "client_name": "Zomato Merchant Ops",
+      "phone_number": "919433221100",
+      "deal_value": 250000,
+      "stage": "New Lead",
+      "product_category": "Support",
+      "close_date": "2026-08-15"
+    },
+    {
+      "id": "deal-7",
+      "client_name": "Wipro Digital Services",
+      "phone_number": "919322110099",
+      "deal_value": 600000,
+      "stage": "Won",
+      "product_category": "Support",
+      "close_date": "2026-04-18"
+    },
+    {
+      "id": "deal-8",
+      "client_name": "Apollo Healthcare",
+      "phone_number": "919211009988",
+      "deal_value": 350000,
+      "stage": "Lost",
+      "product_category": "Hardware",
+      "close_date": "2026-03-30"
+    },
+    {
+      "id": "deal-1785986357773-oczn",
+      "client_name": "Manipal Tech",
+      "phone_number": "919876543210",
+      "deal_value": 500000,
+      "stage": "Contacted",
+      "product_category": "Hardware",
+      "close_date": "2026-08-06"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "exp-1",
+      "expense_name": "Office Rent (Koramangala HQ)",
+      "amount": 85000,
+      "type": "Fixed",
+      "date_logged": "2026-07-01"
+    },
+    {
+      "id": "exp-2",
+      "expense_name": "AWS & Cloud Hosting",
+      "amount": 28000,
+      "type": "Fixed",
+      "date_logged": "2026-07-05"
+    },
+    {
+      "id": "exp-3",
+      "expense_name": "Engineering & Sales Payroll",
+      "amount": 350000,
+      "type": "Fixed",
+      "date_logged": "2026-07-01"
+    },
+    {
+      "id": "exp-4",
+      "expense_name": "Client Lunch with Tata Team",
+      "amount": 12500,
+      "type": "Variable",
+      "date_logged": "2026-07-12"
+    },
+    {
+      "id": "exp-5",
+      "expense_name": "Sales Flight to Mumbai",
+      "amount": 24000,
+      "type": "Variable",
+      "date_logged": "2026-07-18"
+    },
+    {
+      "id": "exp-6",
+      "expense_name": "SaaS Subscriptions & Tools",
+      "amount": 15000,
+      "type": "Fixed",
+      "date_logged": "2026-07-10"
+    },
+    {
+      "id": "exp-7",
+      "expense_name": "Google Ads & Lead Gen Campaign",
+      "amount": 45000,
+      "type": "Variable",
+      "date_logged": "2026-07-22"
+    }
+  ]
+}

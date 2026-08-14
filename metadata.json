@@ -1,0 +1,6 @@
+{
+  "name": "Indian Business CRM & Advisor",
+  "description": "Indian Business CRM featuring Lakhs & Crores Kanban pipeline, Gemini WhatsApp follow-up, expense tracker, profit calculator, charts, AI business advisor, and drop & analyze document parser.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
