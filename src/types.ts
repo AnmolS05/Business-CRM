@@ -36,3 +36,15 @@ export interface DocumentAnalysisResponse {
   parsedDeals?: Omit<Deal, 'id'>[];
   parsedExpenses?: Omit<Expense, 'id'>[];
 }
+
+export interface ChartDataset {
+  label: string;
+  data: number[];
+}
+
+export interface DynamicChartData {
+  chartTitle: string;
+  chartType: 'bar' | 'line';
+  labels: string[];
+  datasets: ChartDataset[];
+}

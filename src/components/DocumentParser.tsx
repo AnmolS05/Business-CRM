@@ -23,24 +23,8 @@ import {
 } from 'recharts';
 import { formatINR, formatLakhsCrores } from '../utils/currency';
 import { analyzeDocumentApi } from '../api/apiClient';
-
-/**
- * Interface representing a dataset series inside dynamic Gemini 2.5 Flash Lite chart output.
- */
-interface ChartDataset {
-  label: string;
-  data: number[];
-}
-
-/**
- * Interface representing structured chart comparison payload extracted from Gemini 2.5 Flash Lite output.
- */
-interface DynamicChartData {
-  chartTitle: string;
-  chartType: 'bar' | 'line';
-  labels: string[];
-  datasets: ChartDataset[];
-}
+import { DynamicChartData, ChartDataset } from '../types';
+import { UploadDropzone } from './UploadDropzone';
 
 /**
  * Palette of colors assigned to dynamic chart datasets.
@@ -64,6 +48,7 @@ export const DocumentParser: React.FC<DocumentParserProps> = ({ isDarkMode = fal
   const [markdownSummary, setMarkdownSummary] = useState<string | null>(null);
   const [chartData, setChartData] = useState<DynamicChartData | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [loadingStage, setLoadingStage] = useState<number>(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -147,10 +132,16 @@ export const DocumentParser: React.FC<DocumentParserProps> = ({ isDarkMode = fal
    */
   const analyzeFile = async (fileToAnalyze: File): Promise<void> => {
     setLoading(true);
+    setLoadingStage(0);
     setError(null);
     setMarkdownSummary(null);
     setChartData(null);
     setFileName(fileToAnalyze.name);
+
+    // Simulate progress stages
+    const stageInterval = setInterval(() => {
+      setLoadingStage((prev) => (prev < 3 ? prev + 1 : prev));
+    }, 800);
 
     try {
       const data = await analyzeDocumentApi(fileToAnalyze);
@@ -161,6 +152,7 @@ export const DocumentParser: React.FC<DocumentParserProps> = ({ isDarkMode = fal
       const msg = err instanceof Error ? err.message : 'Error analyzing document';
       setError(msg);
     } finally {
+      clearInterval(stageInterval);
       setLoading(false);
     }
   };
@@ -262,42 +254,44 @@ Comparison across Categories (Projected vs Actual):
   return (
     <div className="space-y-6">
       {/* Header Info */}
-      <div className="relative overflow-hidden bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-indigo-100/50 dark:border-slate-800/80 rounded-[2.5rem] p-8 sm:p-10 shadow-xl shadow-indigo-900/5 dark:shadow-none hover:shadow-2xl transition-all duration-500 group">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 dark:bg-blue-500/5 blur-[80px] rounded-full pointer-events-none group-hover:scale-150 transition-transform duration-1000" />
+      <div className="relative overflow-hidden bg-[#0a0f1c]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-[2.5rem] p-8 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(79,70,229,0.15)] hover:border-indigo-500/40 transition-all duration-500 group">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
         
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
-            <div className="p-4 bg-indigo-50/80 dark:bg-blue-900/40 text-indigo-600 dark:text-blue-400 border border-indigo-100 dark:border-blue-800/60 rounded-[1.25rem] shadow-inner flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-500">
-              <Zap className="w-8 h-8 stroke-[2.5]" />
+            <div className="p-4 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-[1.25rem] shadow-inner flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all duration-500">
+              <Zap className="w-8 h-8 stroke-[2.5] group-hover:animate-pulse" />
             </div>
             <div>
-              <h2 className="text-3xl font-serif font-black text-gray-900 dark:text-slate-100 tracking-tight">
-                Gemini 2.5 Flash Lite "Drop & Analyze"
+              <h2 className="text-3xl font-serif font-black text-white tracking-tight drop-shadow-md">
+                Gemini 3.1 Flash Lite "Drop & Analyze"
               </h2>
-              <p className="text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-500 mt-2">
-                Extract written insights, Lakhs/Crores monetary breakdowns, and dynamic interactive charts.
+              <p className="text-[11px] font-black uppercase tracking-widest text-slate-400 mt-3 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                Extract insights, breakdowns, and dynamic interactive charts
               </p>
             </div>
           </div>
 
           {/* Quick Sample Buttons */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 bg-gray-50/50 dark:bg-slate-950/30 p-4 rounded-2xl border border-gray-200/50 dark:border-slate-800/50 shadow-inner backdrop-blur-sm">
-            <span className="text-gray-400 dark:text-slate-500 font-black flex items-center gap-2 text-[10px] uppercase tracking-widest pl-2">
-              <Sparkles className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+          <div className="flex flex-col sm:flex-row items-center gap-4 bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50 shadow-inner backdrop-blur-sm group/samples">
+            <span className="text-slate-400 font-black flex items-center gap-2 text-[10px] uppercase tracking-widest pl-2 group-hover/samples:text-slate-300 transition-colors">
+              <Sparkles className="w-4 h-4 text-orange-400" />
               Try Samples
             </span>
             <div className="flex gap-3">
               <button
                 onClick={() => handleSampleDoc('invoice')}
                 disabled={loading}
-                className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-300 rounded-[1rem] font-bold transition-all text-xs shadow-sm hover:scale-105 active:scale-95 whitespace-nowrap"
+                className="px-5 py-2.5 bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-slate-200 hover:text-white rounded-xl font-bold transition-all text-xs shadow-sm hover:shadow-indigo-500/20 hover:scale-105 active:scale-95 whitespace-nowrap"
               >
                 Invoice (₹26.55L)
               </button>
               <button
                 onClick={() => handleSampleDoc('report')}
                 disabled={loading}
-                className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-300 rounded-[1rem] font-bold transition-all text-xs shadow-sm hover:scale-105 active:scale-95 whitespace-nowrap"
+                className="px-5 py-2.5 bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-slate-200 hover:text-white rounded-xl font-bold transition-all text-xs shadow-sm hover:shadow-indigo-500/20 hover:scale-105 active:scale-95 whitespace-nowrap"
               >
                 Q2 Report (₹1.2Cr)
               </button>
@@ -307,64 +301,49 @@ Comparison across Categories (Projected vs Actual):
       </div>
 
       {/* Upload Dropzone */}
-      <div
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onClick={() => fileInputRef.current?.click()}
-        className="relative overflow-hidden border-[3px] border-dashed border-indigo-200 dark:border-slate-700/80 hover:border-indigo-400 dark:hover:border-blue-500/80 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-[2.5rem] p-16 text-center cursor-pointer group transition-all duration-500 shadow-inner"
-      >
-        {/* Animated Background Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/10 dark:bg-blue-500/10 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
-
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx,.txt"
-          className="hidden"
-        />
-
-        <div className="max-w-md mx-auto space-y-8 relative z-10">
-          <div className="w-28 h-28 mx-auto bg-white/90 dark:bg-slate-800/90 rounded-[2.5rem] border border-indigo-100 dark:border-slate-700 flex items-center justify-center text-indigo-600 dark:text-blue-500 shadow-2xl shadow-indigo-500/10 dark:shadow-none group-hover:scale-110 group-hover:-translate-y-2 transition-all duration-700 relative backdrop-blur-xl">
-            <div className="absolute inset-0 bg-indigo-400 dark:bg-blue-500 blur-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-700 rounded-[2.5rem]" />
-            <Upload className="w-12 h-12 relative z-10 stroke-[3]" />
-          </div>
-
-          <div>
-            <p className="font-serif font-black text-4xl text-indigo-950 dark:text-slate-100 tracking-tight">
-              Drag & Drop Financial Data
-            </p>
-            <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-4 font-black uppercase tracking-widest">
-              Upload PDFs, Spreadsheets, or Images (Up to 15MB)
-            </p>
-          </div>
-
-          <button
-            type="button"
-            className="px-12 py-6 bg-indigo-600 hover:bg-indigo-500 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-[15px] font-black uppercase tracking-widest rounded-[1.5rem] transition-all shadow-2xl shadow-indigo-500/40 dark:shadow-blue-500/30 active:scale-95 flex items-center justify-center gap-4 mx-auto"
-          >
-            <Upload className="w-6 h-6 stroke-[3]" />
-            Browse Local Files
-          </button>
-        </div>
-      </div>
+      <UploadDropzone 
+        handleDrop={handleDrop} 
+        handleDragOver={handleDragOver} 
+        fileInputRef={fileInputRef} 
+        handleFileChange={handleFileChange} 
+      />
 
       {/* Processing Loader */}
       {loading && (
         <div className="relative bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-indigo-100/50 dark:border-slate-800 rounded-[2.5rem] p-12 text-center shadow-2xl dark:shadow-none animate-in fade-in zoom-in-95 duration-500 overflow-hidden">
           <div className="absolute inset-0 bg-indigo-500/10 blur-[100px] rounded-full animate-pulse pointer-events-none" />
-          <div className="relative z-10 space-y-8">
+          <div className="relative z-10 space-y-8 max-w-lg mx-auto">
             <div className="relative w-20 h-20 mx-auto">
               <div className="w-20 h-20 border-[4px] border-indigo-100 dark:border-blue-900 rounded-full" />
               <div className="w-20 h-20 border-[4px] border-indigo-500 dark:border-blue-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
             </div>
             <div>
               <h4 className="font-serif font-black text-2xl text-gray-900 dark:text-slate-100 tracking-tight">
-                Gemini 2.5 Flash Lite Analyzing Document...
+                Gemini 2.5 Flash Lite Synthesizing...
               </h4>
-              <p className="text-sm font-bold text-gray-500 dark:text-slate-400 mt-3 max-w-lg mx-auto leading-relaxed">
-                Parsing line items, identifying trends, and extracting numerical data to generate your interactive dashboard
-              </p>
+            </div>
+            
+            {/* Sequential Progress Indicators */}
+            <div className="space-y-4 pt-4 text-left">
+              {[
+                { stage: 0, text: 'Uploading secure document payload...' },
+                { stage: 1, text: 'Processing multi-modal structures...' },
+                { stage: 2, text: 'Extracting semantic charts & JSON...' },
+                { stage: 3, text: 'Finalizing actionable business insights...' }
+              ].map((step) => (
+                <div key={step.stage} className={`flex items-center gap-4 transition-all duration-500 ${loadingStage >= step.stage ? 'opacity-100 translate-x-0' : 'opacity-30 -translate-x-4'}`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 ${loadingStage > step.stage ? 'bg-emerald-500 border-emerald-500 text-white' : loadingStage === step.stage ? 'bg-indigo-100 border-indigo-500 text-indigo-500' : 'border-gray-300 dark:border-slate-700 text-transparent'}`}>
+                    {loadingStage > step.stage ? (
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    ) : loadingStage === step.stage ? (
+                      <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                    ) : null}
+                  </div>
+                  <span className={`text-sm font-bold tracking-wide ${loadingStage >= step.stage ? 'text-gray-900 dark:text-slate-200' : 'text-gray-400 dark:text-slate-600'}`}>
+                    {step.text}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -446,7 +425,7 @@ Comparison across Categories (Projected vs Actual):
                           stroke={CHART_COLORS[idx % CHART_COLORS.length]}
                           strokeWidth={4}
                           dot={{ r: 5, fill: CHART_COLORS[idx % CHART_COLORS.length], strokeWidth: 2, stroke: '#fff' }}
-                          activeDot={{ r: 8, strokeWidth: 0, shadow: '0 0 10px rgba(0,0,0,0.5)' }}
+                          activeDot={{ r: 8, strokeWidth: 0 }}
                         />
                       ))}
                     </LineChart>

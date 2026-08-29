@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { leadPredictor } from '../utils/mlPredictor';
 import {
   Plus,
   Search,
@@ -15,6 +16,7 @@ import {
 import { Deal, DealStage } from '../types';
 import { formatLakhsCrores, formatINR } from '../utils/currency';
 import { WhatsAppModal } from './WhatsAppModal';
+import { DealFormModal } from './DealFormModal';
 
 /**
  * Props for KanbanPipeline component.
@@ -34,11 +36,11 @@ interface KanbanPipelineProps {
  * Stage configuration mapping keys to labels, colors, and badge styles.
  */
 const STAGES: { key: DealStage; label: string; color: string; badgeColor: string; topBorder: string }[] = [
-  { key: 'New Lead', label: 'New Lead', color: 'border-blue-200 text-blue-700 bg-blue-50 dark:border-blue-900/50 dark:text-blue-400 dark:bg-blue-500/10', badgeColor: 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-900/50', topBorder: 'border-t-2 border-t-blue-400 dark:border-t-blue-500' },
-  { key: 'Contacted', label: 'Contacted', color: 'border-amber-200 text-amber-700 bg-amber-50 dark:border-amber-900/50 dark:text-amber-400 dark:bg-amber-500/10', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-900/50', topBorder: 'border-t-2 border-t-amber-400 dark:border-t-amber-500' },
-  { key: 'Proposal Sent', label: 'Proposal Sent', color: 'border-purple-200 text-purple-700 bg-purple-50 dark:border-purple-900/50 dark:text-purple-400 dark:bg-purple-500/10', badgeColor: 'bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-900/50', topBorder: 'border-t-2 border-t-purple-400 dark:border-t-purple-500' },
-  { key: 'Won', label: 'Won', color: 'border-green-200 text-green-700 bg-green-50 dark:border-green-900/50 dark:text-green-400 dark:bg-green-500/10', badgeColor: 'bg-green-50 text-green-700 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-900/50', topBorder: 'border-t-2 border-t-green-400 dark:border-t-green-500' },
-  { key: 'Lost', label: 'Lost', color: 'border-gray-200 text-gray-500 bg-gray-50 dark:border-slate-700 dark:text-slate-400 dark:bg-slate-800/50', badgeColor: 'bg-gray-100 text-gray-500 border border-gray-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700', topBorder: 'border-t-2 border-t-gray-400 dark:border-t-slate-500' },
+  { key: 'New Lead', label: 'New Lead', color: 'border-blue-500/20 text-blue-400 bg-blue-500/10', badgeColor: 'bg-blue-500/10 text-blue-400 border border-blue-500/20 backdrop-blur-md', topBorder: 'border-t-2 border-t-blue-500 shadow-[0_-2px_10px_rgba(59,130,246,0.5)]' },
+  { key: 'Contacted', label: 'Contacted', color: 'border-amber-500/20 text-amber-400 bg-amber-500/10', badgeColor: 'bg-amber-500/10 text-amber-400 border border-amber-500/20 backdrop-blur-md', topBorder: 'border-t-2 border-t-amber-500 shadow-[0_-2px_10px_rgba(245,158,11,0.5)]' },
+  { key: 'Proposal Sent', label: 'Proposal Sent', color: 'border-purple-500/20 text-purple-400 bg-purple-500/10', badgeColor: 'bg-purple-500/10 text-purple-400 border border-purple-500/20 backdrop-blur-md', topBorder: 'border-t-2 border-t-purple-500 shadow-[0_-2px_10px_rgba(168,85,247,0.5)]' },
+  { key: 'Won', label: 'Won', color: 'border-emerald-500/20 text-emerald-400 bg-emerald-500/10', badgeColor: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 backdrop-blur-md', topBorder: 'border-t-2 border-t-emerald-500 shadow-[0_-2px_10px_rgba(16,185,129,0.5)]' },
+  { key: 'Lost', label: 'Lost', color: 'border-slate-700/50 text-slate-400 bg-slate-800/50', badgeColor: 'bg-slate-800/50 text-slate-400 border border-slate-700/50 backdrop-blur-md', topBorder: 'border-t-2 border-t-slate-500' },
 ];
 
 /**
@@ -76,6 +78,12 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
   });
 
   const [draggedDealId, setDraggedDealId] = useState<string | null>(null);
+  const [dragOverStage, setDragOverStage] = useState<DealStage | null>(null);
+
+  // Train the custom ML model on historical deals whenever data changes
+  useEffect(() => {
+    leadPredictor.train(deals);
+  }, [deals]);
 
   const filteredDeals = deals.filter((deal) => {
     const matchesSearch =
@@ -149,8 +157,19 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
   /**
    * Drag over event handler preventing browser default drop blocking.
    */
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, targetStage: DealStage) => {
     e.preventDefault();
+    if (dragOverStage !== targetStage) {
+      setDragOverStage(targetStage);
+    }
+  };
+
+  /**
+   * Drag leave event handler.
+   */
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOverStage(null);
   };
 
   /**
@@ -158,6 +177,7 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
    */
   const handleDrop = async (e: React.DragEvent, targetStage: DealStage) => {
     e.preventDefault();
+    setDragOverStage(null);
     const id = e.dataTransfer.getData('text/plain') || draggedDealId;
     if (id) {
       await onUpdateDeal(id, { stage: targetStage });
@@ -171,36 +191,38 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Controls & Metrics Bar */}
-      <div className="relative group bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-xl shadow-indigo-900/5 dark:shadow-none border border-indigo-100/50 dark:border-slate-800/80 flex flex-wrap justify-between items-center gap-6 transition-all duration-500 overflow-hidden">
+      <div className="relative group bg-[#0a0f1c]/80 backdrop-blur-3xl rounded-[3rem] p-8 shadow-[0_8px_40px_rgb(0,0,0,0.5)] border border-indigo-500/20 flex flex-wrap justify-between items-center gap-6 transition-all duration-500 overflow-hidden hover:shadow-[0_8px_40px_rgb(79,70,229,0.15)]">
         {/* Ambient Glow */}
-        <div className="absolute -top-10 -left-10 w-80 h-80 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-indigo-500/20 group-hover:scale-150 transition-all duration-1000" />
+        <div className="absolute -top-20 -left-20 w-[400px] h-[400px] bg-indigo-500/15 blur-[120px] rounded-full pointer-events-none group-hover:scale-110 group-hover:bg-indigo-500/25 transition-all duration-1000" />
         
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6 w-full lg:w-auto">
           <div>
-            <h2 className="font-serif text-3xl font-black text-gray-900 dark:text-slate-100 flex items-center gap-4 tracking-tight">
-              <div className="p-3 bg-indigo-50 dark:bg-blue-900/30 text-indigo-600 dark:text-blue-400 rounded-[1.25rem] shadow-inner border border-indigo-100 dark:border-blue-800/50 group-hover:scale-110 transition-transform duration-500">
-                <Layers className="w-6 h-6 stroke-[2.5]" />
+            <h2 className="font-serif text-3xl font-black text-white flex items-center gap-4 tracking-tight drop-shadow-md">
+              <div className="p-3.5 bg-indigo-500/10 text-indigo-400 rounded-2xl shadow-inner border border-indigo-500/20 group-hover:scale-110 transition-transform duration-500 group-hover:shadow-[0_0_20px_rgba(79,70,229,0.4)]">
+                <Layers className="w-6 h-6 stroke-[3]" />
               </div>
               Lakhs & Crores Workflow
             </h2>
-            <p className="text-[11px] font-black text-gray-400 dark:text-slate-500 mt-2 ml-1 uppercase tracking-widest">
-              Visual pipeline execution
+            <p className="text-[10px] font-black text-indigo-400 mt-2 ml-1 uppercase tracking-widest flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" /> Visual pipeline execution
             </p>
           </div>
 
           {/* Metric Chips */}
           <div className="flex gap-4 text-xs w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-            <div className="px-5 py-3 rounded-2xl bg-gray-50/80 dark:bg-slate-800/60 border border-gray-200/80 dark:border-slate-700 shadow-inner flex flex-col gap-1 shrink-0 min-w-[140px]">
-              <span className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-slate-500">Total Deals</span>
-              <div className="flex items-baseline gap-2">
-                <strong className="font-serif text-2xl font-black text-indigo-600 dark:text-blue-400 tracking-tight">{deals.length}</strong>
-                <span className="font-mono text-[10px] font-bold text-gray-400">({formatLakhsCrores(totalPipelineValue)})</span>
+            <div className="px-5 py-3.5 rounded-[1.5rem] bg-slate-900/60 border border-slate-700/50 shadow-inner flex flex-col gap-1.5 shrink-0 min-w-[160px] relative overflow-hidden group/metric hover:-translate-y-1 transition-transform backdrop-blur-sm">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover/metric:opacity-100 transition-opacity duration-300" />
+              <span className="relative z-10 text-[10px] uppercase font-black tracking-widest text-slate-400">Total Deals</span>
+              <div className="relative z-10 flex items-baseline gap-2">
+                <strong className="font-serif text-2xl font-black text-indigo-400 tracking-tight drop-shadow-md">{deals.length}</strong>
+                <span className="font-mono text-[11px] font-bold text-slate-500">({formatLakhsCrores(totalPipelineValue)})</span>
               </div>
             </div>
             
-            <div className="px-5 py-3 rounded-2xl bg-gray-50/80 dark:bg-slate-800/60 border border-gray-200/80 dark:border-slate-700 shadow-inner flex flex-col gap-1 shrink-0 min-w-[140px]">
-              <span className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-slate-500">Won Revenue</span>
-              <strong className="font-serif text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">{formatLakhsCrores(wonPipelineValue)}</strong>
+            <div className="px-5 py-3.5 rounded-[1.5rem] bg-emerald-900/10 border border-emerald-500/20 shadow-inner flex flex-col gap-1.5 shrink-0 min-w-[160px] relative overflow-hidden group/metric hover:-translate-y-1 transition-transform backdrop-blur-sm hover:border-emerald-500/40">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover/metric:opacity-100 transition-opacity duration-300" />
+              <span className="relative z-10 text-[10px] uppercase font-black tracking-widest text-emerald-500">Won Revenue</span>
+              <strong className="relative z-10 font-serif text-2xl font-black text-emerald-400 tracking-tight drop-shadow-md">{formatLakhsCrores(wonPipelineValue)}</strong>
             </div>
           </div>
         </div>
@@ -209,13 +231,13 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
         <div className="relative z-10 flex flex-wrap sm:flex-nowrap items-center gap-4 w-full lg:w-auto">
           {/* Search */}
           <div className="relative flex-1 sm:w-64">
-            <Search className="w-4 h-4 absolute left-4 top-3.5 text-gray-400 dark:text-slate-500" />
+            <Search className="w-4 h-4 absolute left-4 top-3.5 text-slate-400 stroke-[3]" />
             <input
               type="text"
               placeholder="Search clients..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 text-sm font-bold border border-gray-200 dark:border-slate-700/80 rounded-2xl bg-gray-50/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-blue-500/20 transition-all shadow-inner"
+              className="w-full pl-11 pr-4 py-3 text-sm font-bold border border-slate-700/50 rounded-[1.5rem] bg-slate-900/60 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
             />
           </div>
 
@@ -224,25 +246,27 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full sm:w-auto px-5 py-3 text-sm font-bold border border-gray-200 dark:border-slate-700/80 rounded-2xl bg-gray-50/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-blue-500/20 cursor-pointer transition-all shadow-inner appearance-none pr-10"
+              className="w-full sm:w-auto px-5 py-3 text-sm font-bold border border-slate-700/50 rounded-[1.5rem] bg-slate-900/60 text-white focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/20 cursor-pointer transition-all shadow-inner appearance-none pr-10 backdrop-blur-sm"
             >
               {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
+                <option key={cat} value={cat} className="bg-slate-900 text-white">
                   {cat === 'All' ? 'All Categories' : cat}
                 </option>
               ))}
             </select>
             {/* Custom dropdown arrow */}
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+              <svg className="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"></path></svg>
             </div>
           </div>
 
           <button
             onClick={() => openAddModal('New Lead')}
-            className="w-full sm:w-auto px-6 py-3 text-sm font-black tracking-widest uppercase text-white bg-indigo-600 hover:bg-indigo-500 dark:bg-blue-600 dark:hover:bg-blue-500 rounded-2xl transition-all hover:-translate-y-1 active:scale-95 shadow-xl shadow-indigo-500/30 dark:shadow-blue-500/20 flex items-center justify-center gap-3 shrink-0"
+            className="w-full sm:w-auto px-6 py-3 text-xs font-black tracking-widest uppercase text-white bg-indigo-600 hover:bg-indigo-500 rounded-[1.5rem] transition-all hover:-translate-y-1 active:scale-95 shadow-[0_0_20px_rgba(79,70,229,0.4)] flex items-center justify-center gap-3 shrink-0 group/btn border border-indigo-400/50"
           >
-            <Plus className="w-5 h-5 stroke-[3]" />
+            <div className="p-1 rounded-md bg-white/20 group-hover/btn:bg-white/30 transition-colors">
+              <Plus className="w-4 h-4 stroke-[3]" />
+            </div>
             Add Deal
           </button>
         </div>
@@ -257,41 +281,54 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
           return (
             <div
               key={column.key}
-              onDragOver={handleDragOver}
+              onDragOver={(e) => handleDragOver(e, column.key)}
+              onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, column.key)}
-              className="bg-gray-50/50 dark:bg-slate-900/40 border border-gray-200 dark:border-slate-800 rounded-[2rem] p-4 flex flex-col min-h-[550px] transition-colors shadow-inner"
+              className={`border rounded-[2.5rem] p-5 flex flex-col min-h-[600px] transition-all duration-300 shadow-inner backdrop-blur-xl ${
+                dragOverStage === column.key
+                  ? 'bg-indigo-500/10 border-indigo-500/50 ring-2 ring-indigo-500/30'
+                  : 'bg-slate-900/40 border-slate-700/50'
+              }`}
             >
               {/* Premium Column Header Pill */}
-              <div className={`flex justify-between items-center px-5 py-4 rounded-[1.5rem] mb-5 shadow-sm backdrop-blur-md ${column.badgeColor}`}>
+              <div className={`flex justify-between items-center px-6 py-5 rounded-[2rem] mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-xl border border-white/5 ${column.badgeColor}`}>
                 <div>
                   <div className="flex items-center gap-3">
-                    <h3 className="font-serif text-sm font-black tracking-widest uppercase">
+                    <h3 className="font-serif text-[15px] font-black tracking-widest uppercase drop-shadow-md">
                       {column.label}
                     </h3>
-                    <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30 backdrop-blur-sm shadow-inner">
+                    <span className="text-[10px] font-black px-3 py-1 rounded-xl bg-black/40 backdrop-blur-sm shadow-inner border border-white/10">
                       {columnDeals.length}
                     </span>
                   </div>
-                  <div className="mt-1.5 text-[11px] font-mono font-bold opacity-80">
-                    {formatLakhsCrores(columnTotal)}
+                  <div className="mt-2 flex flex-col gap-2 w-full">
+                    <div className="text-xs font-mono font-black opacity-90 drop-shadow-sm">
+                      {formatLakhsCrores(columnTotal)}
+                    </div>
+                    {/* Pipeline Value Progress Bar */}
+                    <div className="w-full bg-black/40 rounded-full h-1.5 overflow-hidden mt-1 shadow-inner">
+                      <div 
+                        className={`h-full rounded-full ${column.key === 'Won' ? 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]' : column.key === 'Lost' ? 'bg-slate-500' : 'bg-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.8)]'} transition-all duration-1000`} 
+                        style={{ width: `${totalPipelineValue > 0 ? Math.round((columnTotal / totalPipelineValue) * 100) : 0}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
 
                 <button
                   onClick={() => openAddModal(column.key)}
-                  className="p-2 rounded-xl bg-white/40 dark:bg-black/20 hover:bg-white/60 dark:hover:bg-black/40 transition-all hover:scale-110 active:scale-95 shadow-sm"
+                  className="p-3 rounded-2xl bg-black/20 hover:bg-black/40 transition-all hover:scale-110 active:scale-95 shadow-inner border border-white/10"
                   title={`Add deal to ${column.label}`}
                 >
-                  <Plus className="w-4 h-4 stroke-[2.5]" />
+                  <Plus className="w-5 h-5 stroke-[3]" />
                 </button>
               </div>
 
-              {/* Column Deals List */}
               <div className="flex-1 space-y-4 overflow-y-auto pr-1">
                 {columnDeals.length === 0 ? (
-                  <div className="h-32 border-2 border-dashed border-gray-300 dark:border-slate-700/80 rounded-[1.5rem] flex flex-col items-center justify-center text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 p-4 text-center gap-2">
-                    <div className="p-2 bg-gray-100 dark:bg-slate-800/50 rounded-full">
-                       <Layers className="w-5 h-5 opacity-40" />
+                  <div className="h-32 border-2 border-dashed border-slate-700/80 rounded-[1.5rem] flex flex-col items-center justify-center text-[10px] font-black uppercase tracking-widest text-slate-500 p-4 text-center gap-3">
+                    <div className="p-2.5 bg-slate-800/50 rounded-xl">
+                       <Layers className="w-5 h-5 opacity-40 stroke-[2.5]" />
                     </div>
                     Drag deals here
                   </div>
@@ -301,40 +338,50 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
                       key={deal.id}
                       draggable
                       onDragStart={(e) => handleDragStart(e, deal.id)}
-                      className="bg-white/70 dark:bg-slate-800/40 backdrop-blur-xl rounded-2xl p-0 border border-gray-200/80 dark:border-slate-700/80 hover:border-indigo-400 dark:hover:border-blue-500/70 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-indigo-500/10 dark:hover:shadow-blue-500/10 transition-all duration-300 cursor-grab active:cursor-grabbing group relative overflow-hidden"
+                      className="bg-slate-900/60 backdrop-blur-xl rounded-3xl p-0 border border-slate-700/50 hover:border-indigo-500/50 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(79,70,229,0.2)] transition-all duration-300 cursor-grab active:cursor-grabbing group relative overflow-hidden"
                     >
                       {/* Ambient card glow on hover */}
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 dark:bg-blue-500/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                      <div className="absolute top-0 right-0 w-28 h-28 bg-indigo-500/15 rounded-full blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
                       {/* Top Accent Bar based on stage */}
-                      <div className={`h-1 w-full ${deal.stage === 'Won' ? 'bg-emerald-500' : deal.stage === 'Lost' ? 'bg-rose-500' : 'bg-indigo-500 dark:bg-blue-500'}`} />
+                      <div className={`h-1.5 w-full ${deal.stage === 'Won' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : deal.stage === 'Lost' ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]' : 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]'}`} />
                       
-                      <div className="p-4 pb-3 relative z-10">
+                      <div className="p-5 pb-4 relative z-10">
                         {/* Deal Header & Value */}
-                        <div className="flex justify-between items-start mb-3 gap-3">
-                          <h4 className="font-sans font-bold text-[13px] text-gray-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
+                        <div className="flex justify-between items-start mb-4 gap-3">
+                          <h4 className="font-sans font-black text-sm text-slate-100 group-hover:text-indigo-400 transition-colors leading-tight drop-shadow-md">
                             {deal.client_name}
                           </h4>
                           <div className="text-right shrink-0">
-                            <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-serif font-black text-indigo-700 dark:text-blue-300 bg-indigo-50/80 dark:bg-blue-500/10 border border-indigo-100 dark:border-blue-500/20 shadow-inner">
+                            <span className="inline-block px-3 py-1.5 rounded-xl text-xs font-serif font-black text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 shadow-inner">
                               {formatLakhsCrores(deal.deal_value)}
                             </span>
                           </div>
                         </div>
 
-                        <div className="text-[10px] font-mono font-bold text-gray-400 dark:text-slate-500 mb-4 opacity-80">
-                          Raw: {formatINR(deal.deal_value)}
+                        <div className="flex justify-between items-center mb-5">
+                          <div className="text-[9px] font-mono font-black uppercase tracking-widest text-slate-500">
+                            Raw: {formatINR(deal.deal_value)}
+                          </div>
+                          {(deal.stage === 'New Lead' || deal.stage === 'Contacted') && leadPredictor.predict(deal) !== null && (
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-fuchsia-500/10 to-indigo-500/10 border border-fuchsia-500/20 shadow-inner backdrop-blur-sm" title="AI Product Recommendation">
+                              <Sparkles className="w-3.5 h-3.5 text-fuchsia-400 stroke-[3]" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-fuchsia-400">
+                                Pitch {leadPredictor.predict(deal)}
+                              </span>
+                            </div>
+                          )}
                         </div>
 
                         {/* Category & Close Date Chips */}
-                        <div className="flex flex-wrap gap-2 items-center text-[10px] font-bold text-gray-500 dark:text-slate-400 mb-3">
-                          <span className="px-2 py-1 rounded-md bg-white/50 dark:bg-slate-700/50 border border-gray-200/50 dark:border-slate-600/30 text-gray-600 dark:text-slate-300 flex items-center gap-1.5 shadow-sm">
-                            <Tag className="w-3 h-3 text-indigo-400 dark:text-blue-400" />
+                        <div className="flex flex-wrap gap-2 items-center text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3">
+                          <span className="px-2.5 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-slate-300 flex items-center gap-2 shadow-inner">
+                            <Tag className="w-3.5 h-3.5 text-indigo-400 stroke-[3]" />
                             {deal.product_category}
                           </span>
                           {deal.close_date && (
-                            <span className="px-2 py-1 rounded-md bg-white/50 dark:bg-slate-700/50 border border-gray-200/50 dark:border-slate-600/30 text-gray-600 dark:text-slate-300 flex items-center gap-1.5 shadow-sm">
-                              <Calendar className="w-3 h-3 text-orange-400 dark:text-orange-500" />
+                            <span className="px-2.5 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-slate-300 flex items-center gap-2 shadow-inner">
+                              <Calendar className="w-3.5 h-3.5 text-orange-400 stroke-[3]" />
                               {deal.close_date}
                             </span>
                           )}
@@ -342,11 +389,11 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
                       </div>
 
                       {/* Unified Elegant Bottom Action Bar */}
-                      <div className="relative z-10 flex items-center justify-between gap-2 px-4 py-2.5 bg-gray-50/80 dark:bg-slate-900/60 backdrop-blur-md border-t border-gray-100/80 dark:border-slate-700/50">
+                      <div className="relative z-10 flex items-center justify-between gap-2 px-5 py-3 bg-[#0a0f1c]/80 backdrop-blur-md border-t border-slate-700/50">
                         <select
                           value={deal.stage}
                           onChange={(e) => onUpdateDeal(deal.id, { stage: e.target.value as DealStage })}
-                          className="text-[10px] font-bold py-1 px-2 border border-gray-200 dark:border-slate-600/80 rounded-lg bg-white/80 dark:bg-slate-800 text-gray-700 dark:text-slate-300 cursor-pointer focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 transition-all shadow-sm"
+                          className="text-[10px] font-black uppercase tracking-widest py-1.5 px-3 border border-slate-600/80 rounded-xl bg-slate-900/80 text-slate-300 cursor-pointer focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner"
                         >
                           {STAGES.map((s) => (
                             <option key={s.key} value={s.key}>
@@ -355,27 +402,27 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
                           ))}
                         </select>
 
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => setActiveWhatsAppDeal(deal)}
-                            className="p-1.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-all hover:scale-110 active:scale-95"
+                            className="p-2 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 rounded-xl transition-all hover:scale-110 active:scale-95"
                             title="Generate WhatsApp Follow-up (AI)"
                           >
-                            <MessageSquare className="w-4 h-4" />
+                            <MessageSquare className="w-4 h-4 stroke-[2.5]" />
                           </button>
                           <button
                             onClick={() => openEditModal(deal)}
-                            className="p-1.5 text-gray-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-blue-400 hover:bg-indigo-50 dark:hover:bg-blue-500/10 rounded-lg transition-all hover:scale-110 active:scale-95"
+                            className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/20 rounded-xl transition-all hover:scale-110 active:scale-95"
                             title="Edit deal"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="w-4 h-4 stroke-[2.5]" />
                           </button>
                           <button
                             onClick={() => onDeleteDeal(deal.id)}
-                            className="p-1.5 text-gray-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all hover:scale-110 active:scale-95"
+                            className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 rounded-xl transition-all hover:scale-110 active:scale-95"
                             title="Delete deal"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4 stroke-[2.5]" />
                           </button>
                         </div>
                       </div>
@@ -388,154 +435,15 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
         })}
       </div>
 
-      {/* Add / Edit Deal Modal */}
-      {isFormOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto">
-          <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-md transition-opacity duration-300" onClick={() => setIsFormOpen(false)} />
-          
-          <div className="relative bg-white/95 dark:bg-slate-900/90 rounded-[2.5rem] shadow-2xl max-w-lg w-full overflow-hidden transition-all animate-in fade-in zoom-in-95 duration-300 border border-white/40 dark:border-slate-700/60 backdrop-blur-2xl">
-            {/* Decorative Glow */}
-            <div className="absolute -top-20 -left-20 w-64 h-64 bg-indigo-500/15 dark:bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
-            
-            <div className="bg-indigo-50/60 dark:bg-indigo-900/20 px-10 py-8 border-b border-indigo-100/80 dark:border-indigo-800/40 flex justify-between items-center relative z-10 backdrop-blur-sm">
-              <div className="flex items-center gap-5">
-                <div className="p-4 bg-indigo-100/80 dark:bg-indigo-800/40 text-indigo-600 dark:text-blue-400 rounded-2xl border border-indigo-200/80 dark:border-indigo-700/60 shadow-inner">
-                  <Sparkles className="w-6 h-6 stroke-[2.5]" />
-                </div>
-                <div>
-                  <h3 className="font-serif font-black text-2xl text-indigo-950 dark:text-slate-100 tracking-tight">
-                    {editingDeal ? 'Edit Sales Deal' : 'Add New Pipeline Lead'}
-                  </h3>
-                  <p className="text-[11px] font-black text-indigo-600/80 dark:text-blue-400/80 flex items-center gap-1.5 mt-1.5 uppercase tracking-widest">
-                    Pipeline Management
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsFormOpen(false)}
-                className="p-2 rounded-xl text-indigo-800/40 dark:text-slate-400/60 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-all hover:scale-110 active:scale-95"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleFormSubmit} className="p-10 space-y-8 relative z-10">
-              <div>
-                <label className="block text-[11px] font-black text-gray-400 dark:text-slate-500 mb-3 uppercase tracking-widest pl-2">
-                  Client Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Reliance Retail Expansion"
-                  value={formData.client_name}
-                  onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-                  className="w-full px-6 py-4 text-sm font-bold border border-gray-200/80 dark:border-slate-700/80 rounded-2xl bg-white/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-blue-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-blue-500/20 outline-none transition-all shadow-inner backdrop-blur-sm"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-[11px] font-black text-gray-400 dark:text-slate-500 mb-3 uppercase tracking-widest pl-2">
-                    Deal Value (in ₹) *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min={0}
-                    step={1000}
-                    value={formData.deal_value}
-                    onChange={(e) => setFormData({ ...formData, deal_value: Number(e.target.value) })}
-                    className="w-full px-6 py-4 text-sm font-bold border border-gray-200/80 dark:border-slate-700/80 rounded-2xl bg-white/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-blue-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-inner backdrop-blur-sm"
-                  />
-                  <span className="text-[10px] text-orange-500 mt-1.5 block font-serif font-bold pl-1">
-                    {formatLakhsCrores(formData.deal_value)}
-                  </span>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-black text-gray-400 dark:text-slate-500 mb-3 uppercase tracking-widest pl-2">
-                    Stage
-                  </label>
-                  <select
-                    value={formData.stage}
-                    onChange={(e) => setFormData({ ...formData, stage: e.target.value as DealStage })}
-                    className="w-full px-6 py-4 text-sm font-bold border border-gray-200/80 dark:border-slate-700/80 rounded-2xl bg-white/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-blue-500 focus:ring-4 focus:ring-indigo-500/10 outline-none cursor-pointer transition-all shadow-inner backdrop-blur-sm appearance-none"
-                  >
-                    {STAGES.map((s) => (
-                      <option key={s.key} value={s.key} className="bg-white dark:bg-slate-800">
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-[11px] font-black text-gray-400 dark:text-slate-500 mb-3 uppercase tracking-widest pl-2">
-                    Product Category
-                  </label>
-                  <select
-                    value={formData.product_category}
-                    onChange={(e) => setFormData({ ...formData, product_category: e.target.value })}
-                    className="w-full px-6 py-4 text-sm font-bold border border-gray-200/80 dark:border-slate-700/80 rounded-2xl bg-white/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-blue-500 focus:ring-4 focus:ring-indigo-500/10 outline-none cursor-pointer transition-all shadow-inner backdrop-blur-sm appearance-none"
-                  >
-                    <option value="Software" className="bg-white dark:bg-slate-800">Software</option>
-                    <option value="Consulting" className="bg-white dark:bg-slate-800">Consulting</option>
-                    <option value="Support" className="bg-white dark:bg-slate-800">Support</option>
-                    <option value="Hardware" className="bg-white dark:bg-slate-800">Hardware</option>
-                    <option value="AMC Services" className="bg-white dark:bg-slate-800">AMC Services</option>
-                    <option value="General" className="bg-white dark:bg-slate-800">General</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-black text-gray-400 dark:text-slate-500 mb-3 uppercase tracking-widest pl-2">
-                    Target Close Date
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.close_date}
-                    onChange={(e) => setFormData({ ...formData, close_date: e.target.value })}
-                    className="w-full px-6 py-4 text-sm font-bold border border-gray-200/80 dark:border-slate-700/80 rounded-2xl bg-white/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-blue-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-inner backdrop-blur-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-black text-gray-400 dark:text-slate-500 mb-3 uppercase tracking-widest pl-2">
-                  WhatsApp Phone Number
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 919876543210"
-                  value={formData.phone_number}
-                  onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-                  className="w-full px-6 py-4 text-sm font-bold border border-gray-200/80 dark:border-slate-700/80 rounded-2xl bg-white/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-blue-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-inner backdrop-blur-sm"
-                />
-              </div>
-
-              <div className="pt-8 flex flex-wrap-reverse sm:flex-nowrap justify-end items-center gap-5">
-                <button
-                  type="button"
-                  onClick={() => setIsFormOpen(false)}
-                  className="w-full sm:w-auto px-6 py-4 text-sm font-black tracking-widest uppercase text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="w-full sm:w-auto px-8 py-4 text-sm font-black uppercase tracking-widest text-white bg-indigo-600 hover:bg-indigo-500 dark:bg-blue-600 dark:hover:bg-blue-500 rounded-2xl shadow-xl shadow-indigo-500/30 dark:shadow-blue-500/20 active:scale-95 transition-all flex justify-center items-center gap-3"
-                >
-                  {editingDeal ? 'Save Changes' : 'Initialize Deal'}
-                  <TrendingUp className="w-5 h-5 stroke-[3]" />
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <DealFormModal
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSubmit={handleFormSubmit}
+        editingDeal={editingDeal}
+        formData={formData}
+        setFormData={setFormData}
+        stages={STAGES}
+      />
 
       {/* Feature 2: WhatsApp Modal */}
       <WhatsAppModal

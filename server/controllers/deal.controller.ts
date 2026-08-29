@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { db } from '../db';
+import { DealService } from '../services/deal.service';
 
 /**
  * Controller handling retrieval of all sales deals.
@@ -9,7 +9,7 @@ import { db } from '../db';
  */
 export function getDeals(req: Request, res: Response): void {
   try {
-    const deals = db.getDeals();
+    const deals = DealService.getAllDeals();
     res.json(deals);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to fetch deals';
@@ -30,7 +30,7 @@ export function createDeal(req: Request, res: Response): void {
       res.status(400).json({ error: 'client_name and deal_value are required fields.' });
       return;
     }
-    const newDeal = db.addDeal({
+    const newDeal = DealService.createDeal({
       client_name: String(client_name),
       phone_number: String(phone_number || ''),
       deal_value: Number(deal_value),
@@ -54,7 +54,7 @@ export function createDeal(req: Request, res: Response): void {
 export function updateDeal(req: Request, res: Response): void {
   try {
     const { id } = req.params;
-    const updated = db.updateDeal(id, req.body);
+    const updated = DealService.updateDeal(id, req.body);
     if (!updated) {
       res.status(404).json({ error: `Deal with ID ${id} not found.` });
       return;
@@ -75,7 +75,7 @@ export function updateDeal(req: Request, res: Response): void {
 export function deleteDeal(req: Request, res: Response): void {
   try {
     const { id } = req.params;
-    const success = db.deleteDeal(id);
+    const success = DealService.deleteDeal(id);
     if (!success) {
       res.status(404).json({ error: `Deal with ID ${id} not found.` });
       return;

@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Deal, Expense } from './types';
 import { Navbar } from './components/Navbar';
 import { KanbanPipeline } from './components/KanbanPipeline';
 import { ExpenseTracker } from './components/ExpenseTracker';
 import { StatisticsDashboard } from './components/StatisticsDashboard';
 import { DocumentParser } from './components/DocumentParser';
 import { RefreshCw, AlertCircle } from 'lucide-react';
-import {
-  fetchDealsApi,
-  createDealApi,
-  updateDealApi,
-  deleteDealApi,
-  fetchExpensesApi,
-  createExpenseApi,
-  deleteExpenseApi,
-  resetDatabaseApi,
-} from './api/apiClient';
+import { useAppData } from './hooks/useAppData';
 
 /**
  * Main Application root component orchestrating state, tab navigation, and API synchronizations.
@@ -28,48 +18,29 @@ export default function App(): React.ReactElement {
     const saved = localStorage.getItem('theme');
     return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
   });
-  const [deals, setDeals] = useState<Deal[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  /**
-   * Helper function to display transient toast notifications.
-   *
-   * @param {string} message Text message to display.
-   * @param {'success' | 'error'} type Notification severity.
-   */
-  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 4000);
-  };
-
-  /**
-   * Fetches initial sales deals and expenses from backend API.
-   */
-  const fetchData = async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [dealsData, expData] = await Promise.all([
-        fetchDealsApi(),
-        fetchExpensesApi(),
-      ]);
-
-      setDeals(dealsData);
-      setExpenses(expData);
-    } catch (err: unknown) {
-      console.error('[App Data Fetch Error]:', err);
-      const msg = err instanceof Error ? err.message : 'Error connecting to database';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    deals,
+    expenses,
+    loading,
+    error,
+    notification,
+    handleAddDeal,
+    handleUpdateDeal,
+    handleDeleteDeal,
+    handleAddExpense,
+    handleDeleteExpense,
+    handleResetDb,
+    fetchData,
+  } = useAppData();
 
   useEffect(() => {
-    fetchData();
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   useEffect(() => {
@@ -84,107 +55,6 @@ export default function App(): React.ReactElement {
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
-  /**
-   * Handles creating a new sales deal record via API.
-   *
-   * @param {Omit<Deal, 'id'>} newDeal Deal parameters.
-   */
-  const handleAddDeal = async (newDeal: Omit<Deal, 'id'>): Promise<void> => {
-    try {
-      const created = await createDealApi(newDeal);
-      setDeals((prev) => [...prev, created]);
-      showNotification(`Deal for "${created.client_name}" added successfully.`);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error adding deal';
-      showNotification(msg, 'error');
-    }
-  };
-
-  /**
-   * Handles updating an existing deal by ID with optimistic state update.
-   *
-   * @param {string} id Target deal ID.
-   * @param {Partial<Deal>} updates Modified deal properties.
-   */
-  const handleUpdateDeal = async (id: string, updates: Partial<Deal>): Promise<void> => {
-    setDeals((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, ...updates } : d))
-    );
-
-    try {
-      await updateDealApi(id, updates);
-    } catch (err: unknown) {
-      console.error('[Update Deal Error]:', err);
-      fetchData();
-      showNotification('Failed to update deal on server.', 'error');
-    }
-  };
-
-  /**
-   * Handles deleting a deal record by ID.
-   *
-   * @param {string} id Unique deal identifier.
-   */
-  const handleDeleteDeal = async (id: string): Promise<void> => {
-    setDeals((prev) => prev.filter((d) => d.id !== id));
-    try {
-      await deleteDealApi(id);
-      showNotification('Deal deleted successfully.');
-    } catch (err: unknown) {
-      console.error('[Delete Deal Error]:', err);
-      fetchData();
-      showNotification('Failed to delete deal from server.', 'error');
-    }
-  };
-
-  /**
-   * Handles adding a new expense item via API.
-   *
-   * @param {Omit<Expense, 'id'>} newExpense New expense fields.
-   */
-  const handleAddExpense = async (newExpense: Omit<Expense, 'id'>): Promise<void> => {
-    try {
-      const created = await createExpenseApi(newExpense);
-      setExpenses((prev) => [created, ...prev]);
-      showNotification(`Expense "${created.expense_name}" logged successfully.`);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error adding expense';
-      showNotification(msg, 'error');
-    }
-  };
-
-  /**
-   * Handles deleting an expense item by ID.
-   *
-   * @param {string} id Unique expense identifier.
-   */
-  const handleDeleteExpense = async (id: string): Promise<void> => {
-    setExpenses((prev) => prev.filter((e) => e.id !== id));
-    try {
-      await deleteExpenseApi(id);
-      showNotification('Expense removed successfully.');
-    } catch (err: unknown) {
-      console.error('[Delete Expense Error]:', err);
-      fetchData();
-      showNotification('Failed to delete expense from server.', 'error');
-    }
-  };
-
-  /**
-   * Resets database state to default sample Indian business data records.
-   */
-  const handleResetDb = async (): Promise<void> => {
-    try {
-      const data = await resetDatabaseApi();
-      setDeals(data.deals || []);
-      setExpenses(data.expenses || []);
-      showNotification('Database reset to sample Indian business data defaults.');
-    } catch (err: unknown) {
-      console.error('[Reset DB Error]:', err);
-      showNotification('Failed to reset database.', 'error');
-    }
-  };
-
   // Metric calculation for Navbar KPI
   const grossRevenue = deals
     .filter((d) => d.stage === 'Won')
@@ -196,13 +66,20 @@ export default function App(): React.ReactElement {
     <div className="min-h-screen bg-slate-50 text-gray-900 font-sans antialiased flex flex-col selection:bg-indigo-500 selection:text-white dark:bg-slate-950 dark:text-slate-100 transition-colors duration-500 relative overflow-hidden">
       
       {/* Global Ambient OS-level Background Effect */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Top Right Glow */}
-        <div className="absolute -top-[20%] -right-[10%] w-[70vw] h-[70vw] rounded-full bg-indigo-500/5 dark:bg-indigo-500/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen opacity-50 animate-pulse" style={{ animationDuration: '8s' }} />
-        {/* Bottom Left Glow */}
-        <div className="absolute -bottom-[20%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-blue-500/5 dark:bg-blue-600/10 blur-[100px] mix-blend-multiply dark:mix-blend-screen opacity-50 animate-pulse" style={{ animationDuration: '12s' }} />
-        {/* Center Accent */}
-        <div className="absolute top-[40%] left-[40%] w-[40vw] h-[40vw] rounded-full bg-purple-500/5 dark:bg-purple-500/5 blur-[120px] mix-blend-multiply dark:mix-blend-screen opacity-30" />
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-gradient-to-br from-slate-50 to-indigo-50/30 dark:from-slate-950 dark:to-indigo-950/20">
+        {/* Animated Particles & Glows */}
+        <div className="absolute top-0 right-0 w-[40vw] h-[40vw] bg-indigo-500/10 dark:bg-indigo-600/10 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen opacity-70 animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute bottom-0 left-0 w-[50vw] h-[50vw] bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen opacity-60 animate-pulse" style={{ animationDuration: '12s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-purple-500/5 dark:bg-purple-600/5 rounded-full blur-[150px] mix-blend-multiply dark:mix-blend-screen opacity-40 animate-pulse" style={{ animationDuration: '10s' }} />
+        
+        {/* Interactive Cursor Tracking Orb */}
+        <div 
+          className="absolute w-[400px] h-[400px] bg-indigo-400/20 dark:bg-blue-500/10 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen transition-transform duration-700 ease-out"
+          style={{ transform: `translate(${mousePos.x - 200}px, ${mousePos.y - 200}px)` }}
+        />
+
+        {/* Subtle grid pattern overlay */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMTU2LCAxNjMsIDE3NSwgMC4xNSkiLz48L3N2Zz4=')] opacity-50 dark:opacity-20" />
       </div>
 
       <div className="relative z-10 flex flex-col flex-1 w-full max-w-[1920px] mx-auto">

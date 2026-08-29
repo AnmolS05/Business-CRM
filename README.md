@@ -52,8 +52,8 @@ Ensure the following tools are installed on your local environment:
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/AnmolS05/AI-Powered-Sales-Intelligence-Dashboard.git
-   cd business-crm-and-advisor
+   git clone https://github.com/AnmolS05/Business-CRM.git
+   cd Business-CRM
    ```
 
 2. **Install Dependencies:**
@@ -115,7 +115,6 @@ We adhere to a strict standard of high-precision, continuous execution. When con
 1. Ensure all code modifications maintain scientific validity and root-cause resolution principles.
 2. Verify that no existing functionality is broken.
 3. Update `CHANGELOG.md` with every significant modification, detailing the date, description, and affected files.
-4. Never delete files permanently; move deprecated assets to the `deleted/` directory.
 
 ## 📄 License
 

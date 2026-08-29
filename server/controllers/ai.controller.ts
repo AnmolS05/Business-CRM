@@ -1,9 +1,5 @@
 import { Request, Response } from 'express';
-import {
-  generateWhatsAppFollowUp,
-  generateBusinessRecommendations,
-  analyzeDocumentFile,
-} from '../services/gemini.service';
+import { geminiService } from '../services/gemini.service';
 
 /**
  * Controller endpoint for generating a Gemini AI WhatsApp follow-up draft.
@@ -19,7 +15,7 @@ export async function getWhatsAppFollowUp(req: Request, res: Response): Promise<
       return;
     }
 
-    const draft = await generateWhatsAppFollowUp({
+    const draft = await geminiService.generateWhatsAppFollowUp({
       client_name: String(client_name),
       product_category: product_category ? String(product_category) : undefined,
       deal_value: deal_value !== undefined ? Number(deal_value) : undefined,
@@ -44,7 +40,7 @@ export async function getBusinessRecommendations(req: Request, res: Response): P
   try {
     const { topProduct, topProductRevenue, totalSales, totalExpenses } = req.body;
 
-    const recommendations = await generateBusinessRecommendations({
+    const recommendations = await geminiService.generateBusinessRecommendations({
       topProduct: topProduct ? String(topProduct) : undefined,
       topProductRevenue: topProductRevenue !== undefined ? Number(topProductRevenue) : undefined,
       totalSales: totalSales !== undefined ? Number(totalSales) : undefined,
@@ -72,7 +68,7 @@ export async function analyzeDocument(req: Request, res: Response): Promise<void
       return;
     }
 
-    const markdownSummary = await analyzeDocumentFile({
+    const markdownSummary = await geminiService.analyzeDocumentFile({
       buffer: req.file.buffer,
       mimeType: req.file.mimetype,
       originalname: req.file.originalname,

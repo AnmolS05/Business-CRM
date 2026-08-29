@@ -39,12 +39,31 @@ async function handleResponse<T>(res: Response): Promise<T> {
 }
 
 /**
+ * Enhanced fetch wrapper that implements exponential backoff retries for network resilience.
+ */
+async function fetchWithRetry(url: string, options?: RequestInit, retries = 3, backoffMs = 300): Promise<Response> {
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok && res.status >= 500 && retries > 0) {
+      throw new Error(`Server Error ${res.status}`);
+    }
+    return res;
+  } catch (error) {
+    if (retries > 0) {
+      await new Promise(resolve => setTimeout(resolve, backoffMs));
+      return fetchWithRetry(url, options, retries - 1, backoffMs * 2);
+    }
+    throw error;
+  }
+}
+
+/**
  * Fetches all sales deals from the server database.
  *
  * @returns {Promise<Deal[]>} Array of sales deal entities.
  */
 export async function fetchDealsApi(): Promise<Deal[]> {
-  const res = await fetch('/api/deals');
+  const res = await fetchWithRetry('/api/deals');
   return handleResponse<Deal[]>(res);
 }
 
@@ -55,7 +74,7 @@ export async function fetchDealsApi(): Promise<Deal[]> {
  * @returns {Promise<Deal>} Created deal object returned from backend.
  */
 export async function createDealApi(deal: Omit<Deal, 'id'>): Promise<Deal> {
-  const res = await fetch('/api/deals', {
+  const res = await fetchWithRetry('/api/deals', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(deal),
@@ -71,7 +90,7 @@ export async function createDealApi(deal: Omit<Deal, 'id'>): Promise<Deal> {
  * @returns {Promise<Deal>} Updated deal entity.
  */
 export async function updateDealApi(id: string, updates: Partial<Deal>): Promise<Deal> {
-  const res = await fetch(`/api/deals/${id}`, {
+  const res = await fetchWithRetry(`/api/deals/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates),
@@ -86,7 +105,7 @@ export async function updateDealApi(id: string, updates: Partial<Deal>): Promise
  * @returns {Promise<void>} Resolves when deletion succeeds.
  */
 export async function deleteDealApi(id: string): Promise<void> {
-  const res = await fetch(`/api/deals/${id}`, { method: 'DELETE' });
+  const res = await fetchWithRetry(`/api/deals/${id}`, { method: 'DELETE' });
   await handleResponse<{ success: boolean }>(res);
 }
 
@@ -96,7 +115,7 @@ export async function deleteDealApi(id: string): Promise<void> {
  * @returns {Promise<Expense[]>} Array of expense entities.
  */
 export async function fetchExpensesApi(): Promise<Expense[]> {
-  const res = await fetch('/api/expenses');
+  const res = await fetchWithRetry('/api/expenses');
   return handleResponse<Expense[]>(res);
 }
 
@@ -107,7 +126,7 @@ export async function fetchExpensesApi(): Promise<Expense[]> {
  * @returns {Promise<Expense>} Created expense object returned from backend.
  */
 export async function createExpenseApi(expense: Omit<Expense, 'id'>): Promise<Expense> {
-  const res = await fetch('/api/expenses', {
+  const res = await fetchWithRetry('/api/expenses', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(expense),
@@ -123,7 +142,7 @@ export async function createExpenseApi(expense: Omit<Expense, 'id'>): Promise<Ex
  * @returns {Promise<Expense>} Updated expense entity.
  */
 export async function updateExpenseApi(id: string, updates: Partial<Expense>): Promise<Expense> {
-  const res = await fetch(`/api/expenses/${id}`, {
+  const res = await fetchWithRetry(`/api/expenses/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates),
@@ -138,7 +157,7 @@ export async function updateExpenseApi(id: string, updates: Partial<Expense>): P
  * @returns {Promise<void>} Resolves when deletion succeeds.
  */
 export async function deleteExpenseApi(id: string): Promise<void> {
-  const res = await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+  const res = await fetchWithRetry(`/api/expenses/${id}`, { method: 'DELETE' });
   await handleResponse<{ success: boolean }>(res);
 }
 
@@ -148,7 +167,7 @@ export async function deleteExpenseApi(id: string): Promise<void> {
  * @returns {Promise<{ deals: Deal[]; expenses: Expense[] }>} Reset database records.
  */
 export async function resetDatabaseApi(): Promise<{ deals: Deal[]; expenses: Expense[] }> {
-  const res = await fetch('/api/reset-db', { method: 'POST' });
+  const res = await fetchWithRetry('/api/reset-db', { method: 'POST' });
   return handleResponse<{ deals: Deal[]; expenses: Expense[] }>(res);
 }
 
@@ -164,7 +183,7 @@ export async function generateWhatsAppFollowUpApi(params: {
   deal_value?: number;
   stage?: string;
 }): Promise<string> {
-  const res = await fetch('/api/ai/whatsapp-followup', {
+  const res = await fetchWithRetry('/api/ai/whatsapp-followup', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),
@@ -185,7 +204,7 @@ export async function generateBusinessRecommendationsApi(params: {
   totalSales: number;
   totalExpenses: number;
 }): Promise<string> {
-  const res = await fetch('/api/ai/business-recommendations', {
+  const res = await fetchWithRetry('/api/ai/business-recommendations', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),
@@ -204,7 +223,7 @@ export async function analyzeDocumentApi(file: File): Promise<{ markdownSummary:
   const formData = new FormData();
   formData.append('file', file);
 
-  const res = await fetch('/api/ai/analyze-document', {
+  const res = await fetchWithRetry('/api/ai/analyze-document', {
     method: 'POST',
     body: formData,
   });

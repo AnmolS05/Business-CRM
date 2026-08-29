@@ -80,6 +80,15 @@
       "stage": "Contacted",
       "product_category": "Hardware",
       "close_date": "2026-08-06"
+    },
+    {
+      "id": "deal-1787656073892-ac3k",
+      "client_name": "Reliance",
+      "phone_number": "919876543210",
+      "deal_value": 500000,
+      "stage": "Contacted",
+      "product_category": "Software",
+      "close_date": "2026-08-25"
     }
   ],
   "expenses": [
@@ -131,6 +140,13 @@
       "amount": 45000,
       "type": "Variable",
       "date_logged": "2026-07-22"
+    },
+    {
+      "id": "exp-1787656217775-0drx",
+      "expense_name": "internet bill",
+      "amount": 3600,
+      "type": "Fixed",
+      "date_logged": "2026-08-25"
     }
   ]
 }

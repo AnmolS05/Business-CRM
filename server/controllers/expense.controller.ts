@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { db } from '../db';
+import { ExpenseService } from '../services/expense.service';
 
 /**
  * Controller handling retrieval of all company expense records.
@@ -9,7 +9,7 @@ import { db } from '../db';
  */
 export function getExpenses(req: Request, res: Response): void {
   try {
-    const expenses = db.getExpenses();
+    const expenses = ExpenseService.getAllExpenses();
     res.json(expenses);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to fetch expenses';
@@ -30,7 +30,7 @@ export function createExpense(req: Request, res: Response): void {
       res.status(400).json({ error: 'expense_name and amount are required fields.' });
       return;
     }
-    const newExpense = db.addExpense({
+    const newExpense = ExpenseService.createExpense({
       expense_name: String(expense_name),
       amount: Number(amount),
       type: type === 'Variable' ? 'Variable' : 'Fixed',
@@ -52,7 +52,7 @@ export function createExpense(req: Request, res: Response): void {
 export function updateExpense(req: Request, res: Response): void {
   try {
     const { id } = req.params;
-    const updated = db.updateExpense(id, req.body);
+    const updated = ExpenseService.updateExpense(id, req.body);
     if (!updated) {
       res.status(404).json({ error: `Expense with ID ${id} not found.` });
       return;
@@ -73,7 +73,7 @@ export function updateExpense(req: Request, res: Response): void {
 export function deleteExpense(req: Request, res: Response): void {
   try {
     const { id } = req.params;
-    const success = db.deleteExpense(id);
+    const success = ExpenseService.deleteExpense(id);
     if (!success) {
       res.status(404).json({ error: `Expense with ID ${id} not found.` });
       return;
@@ -93,7 +93,7 @@ export function deleteExpense(req: Request, res: Response): void {
  */
 export function resetDatabase(req: Request, res: Response): void {
   try {
-    const initial = db.resetDb();
+    const initial = ExpenseService.resetDatabase();
     res.json({ success: true, ...initial });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to reset database';
