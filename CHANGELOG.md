@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## [2026-11-24T09:12:00+05:30] Configured Native Vercel Serverless Deployment
+
+### Description
+- Modularized Express backend by extracting application setup into `server/app.ts`, decoupling server instantiation from HTTP listening.
+- Created `api/index.ts` as the standard Vercel Serverless Function handler to execute Express API endpoints serverlessly.
+- Added `vercel.json` with build commands, output directory configuration, and rewrites mapping `/api/*` to the serverless entrypoint and client routes to SPA fallback.
+- Enhanced `server/db.ts` with serverless filesystem resilience, directing writes to `/tmp` storage when `VERCEL` or Lambda environments are detected to prevent read-only filesystem errors.
+- Mounted `/api/reset-db` directly in `server/routes/index.ts` ensuring parity with frontend API client calls.
+- Updated `README.md` with comprehensive Vercel deployment guidelines and environment variable requirements.
+
+### Files Affected
+- `api/index.ts`
+- `server/app.ts`
+- `server.ts`
+- `server/db.ts`
+- `server/routes/index.ts`
+- `vercel.json`
+- `README.md`
+- `CHANGELOG.md`
+
 ## [2026-08-14T12:30:00+05:30] Refactored README for Enterprise Standard
 
 ### Description

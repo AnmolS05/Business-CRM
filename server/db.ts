@@ -1,9 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { Deal, Expense } from '../src/types';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+// In serverless environments like Vercel, the root filesystem is read-only.
+// We write to os.tmpdir() when running under Vercel or Lambda execution environments.
+const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const DATA_DIR = isServerless ? path.join(os.tmpdir(), 'crm-data') : path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+const SEED_FILE = path.join(process.cwd(), 'data', 'db.json');
 
 /**
  * Interface representing the complete JSON database schema structure.
@@ -148,20 +153,39 @@ const INITIAL_EXPENSES: Expense[] = [
 
 /**
  * Ensures the database directory and file exist, seeding initial data if missing.
+ * Supports read-only serverless environments by falling back to template data and /tmp storage.
  *
  * @returns {DatabaseSchema} Complete current database schema.
  */
 function ensureDbExists(): DatabaseSchema {
   if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+    try {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    } catch (dirErr) {
+      console.warn('[DB Warning]: Could not create database directory, continuing:', dirErr);
+    }
   }
 
   if (!fs.existsSync(DB_FILE)) {
-    const initial: DatabaseSchema = {
+    let seedData: DatabaseSchema | null = null;
+    if (fs.existsSync(SEED_FILE)) {
+      try {
+        const seedContent = fs.readFileSync(SEED_FILE, 'utf-8');
+        seedData = JSON.parse(seedContent);
+      } catch (seedErr) {
+        console.warn('[DB Warning]: Failed reading seed file from repo, using hardcoded defaults:', seedErr);
+      }
+    }
+
+    const initial: DatabaseSchema = seedData || {
       deals: INITIAL_DEALS,
       expenses: INITIAL_EXPENSES,
     };
-    saveDb(initial);
+    try {
+      saveDb(initial);
+    } catch (saveErr) {
+      console.warn('[DB Warning]: Could not persist initial seed to disk:', saveErr);
+    }
     return initial;
   }
 
@@ -174,35 +198,44 @@ function ensureDbExists(): DatabaseSchema {
       deals: INITIAL_DEALS,
       expenses: INITIAL_EXPENSES,
     };
-    saveDb(initial);
+    try {
+      saveDb(initial);
+    } catch (saveErr) {
+      console.warn('[DB Warning]: Could not persist reset schema to disk:', saveErr);
+    }
     return initial;
   }
 }
 
 /**
  * Atomically writes database content to disk using a temporary file to prevent corruption.
+ * Gracefully catches filesystem write restrictions in serverless execution environments.
  *
  * @param {DatabaseSchema} data Database schema object to serialize and save.
  */
 function saveDb(data: DatabaseSchema): void {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-  const tempPath = path.join(DATA_DIR, `db.tmp.${Date.now()}.json`);
-  const serialized = JSON.stringify(data, null, 2);
   try {
-    fs.writeFileSync(tempPath, serialized, 'utf-8');
-    fs.renameSync(tempPath, DB_FILE);
-  } catch (err) {
-    // Fallback to direct write if atomic rename is restricted by OS locks
-    fs.writeFileSync(DB_FILE, serialized, 'utf-8');
-    if (fs.existsSync(tempPath)) {
-      try {
-        fs.unlinkSync(tempPath);
-      } catch (_) {
-        // Ignore temporary file cleanup errors
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    const tempPath = path.join(DATA_DIR, `db.tmp.${Date.now()}.${Math.random().toString(36).substring(2, 6)}.json`);
+    const serialized = JSON.stringify(data, null, 2);
+    try {
+      fs.writeFileSync(tempPath, serialized, 'utf-8');
+      fs.renameSync(tempPath, DB_FILE);
+    } catch (err) {
+      // Fallback to direct write if atomic rename is restricted by OS locks
+      fs.writeFileSync(DB_FILE, serialized, 'utf-8');
+      if (fs.existsSync(tempPath)) {
+        try {
+          fs.unlinkSync(tempPath);
+        } catch (_) {
+          // Ignore temporary file cleanup errors
+        }
       }
     }
+  } catch (fsErr) {
+    console.error('[DB Error]: Failed to write database state to disk:', fsErr);
   }
 }
 

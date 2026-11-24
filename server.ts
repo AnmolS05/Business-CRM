@@ -1,30 +1,14 @@
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
-import cors from 'cors';
-import compression from 'compression';
 
 import { envConfig } from './server/config/env';
-import apiRoutes from './server/routes/index';
-import { apiNotFoundHandler, globalErrorHandler } from './server/middleware/errorHandler';
-
-const app = express();
-
-// Express Middleware
-app.use(cors());
-app.use(compression());
-app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ extended: true, limit: '20mb' }));
-
-// Mount Modular API Routers
-app.use('/api', apiRoutes);
-
-// API Error & Fallback Middleware
-app.use('/api/*', apiNotFoundHandler);
-app.use(globalErrorHandler);
+import { app } from './server/app';
 
 /**
  * Initializes the HTTP server and attaches Vite HMR middleware in development mode or static SPA fallback in production.
+ *
+ * @returns {Promise<void>} Resolves when server is listening.
  */
 async function startServer(): Promise<void> {
   if (envConfig.nodeEnv !== 'production') {

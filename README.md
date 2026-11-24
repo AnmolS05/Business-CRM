@@ -87,26 +87,46 @@ npm run lint
 ```
 *(Note: Automated testing suites like Jest/Vitest can be added and run via standard npm scripts.)*
 
-## 📦 Build for Production
+## 📦 Build & Deployment
 
-When preparing for deployment, the application must be bundled into a production-ready package.
+### Local Production Build
+
+When preparing for local deployment or container execution, bundle the application:
 
 1. **Build the Application:**
-   This command compiles the React frontend using Vite and bundles the Node.js backend using `esbuild`.
+   Compiles the React frontend via Vite and bundles the Node.js backend using `esbuild`.
    ```bash
    npm run build
    ```
 
 2. **Start the Production Server:**
-   Execute the compiled server bundle.
+   Executes the compiled server bundle.
    ```bash
    npm run start
    ```
 
 3. **Clean Build Artifacts:**
-   To reset the build environment and remove the `dist` folder:
+   Resets the build environment by removing compiled assets:
    ```bash
    npm run clean
+   ```
+
+### Vercel Serverless Deployment
+
+CapitalFlow Pro is engineered with native support for zero-configuration Vercel deployment:
+- **Frontend SPA**: Built via `vite build` into `dist/` and served over Vercel Edge CDN with global caching and instant invalidation.
+- **Backend API**: Dispatched via `api/index.ts` through Vercel Serverless Functions (`@vercel/node`).
+- **Database Layer**: Automatically detects serverless execution environments (`process.env.VERCEL`) and directs state writes to `/tmp` storage while seeding from bundled datasets.
+
+#### Deploying to Vercel:
+1. **Push to GitHub**: Ensure the latest changes are pushed to your remote repository.
+2. **Import into Vercel**: Connect the repository in the Vercel dashboard. The framework preset (Vite) and serverless rewrites are auto-detected via `vercel.json`.
+3. **Configure Environment Variables**: In your Vercel Project Settings under **Environment Variables**, configure:
+   - `GEMINI_API_KEY`: Your Google Gemini API key.
+   - `NODE_ENV`: `production`.
+4. **Deploy via CLI**: Alternatively, deploy directly using the Vercel CLI:
+   ```bash
+   npx vercel --prod
    ```
 
 ## 🤝 Contributing
