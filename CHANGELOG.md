@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## [2026-11-24T09:23:00+05:30] Optimized Vercel Serverless Function Bundling
+
+### Description
+- Added `server/serverless.ts` as the root entry point for serverless deployment.
+- Integrated `esbuild` serverless bundling into `package.json` build pipeline to bundle all internal server code into `api/index.js`, eliminating ESM extensionless module resolution errors under Node.js runtime.
+- Updated `vercel.json` to trigger `npm run build` directly.
+- Verified live deployment and endpoint validation (`/api/health`, `/api/deals`, `/api/expenses`) on Vercel Edge network.
+
+### Files Affected
+- `server/serverless.ts`
+- `package.json`
+- `vercel.json`
+- `.gitignore`
+- `api/index.js`
+- `CHANGELOG.md`
+
 ## [2026-11-24T09:12:00+05:30] Configured Native Vercel Serverless Deployment
 
 ### Description

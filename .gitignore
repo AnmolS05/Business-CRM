@@ -12,3 +12,5 @@ coverage/
 
 # Python Virtual Environments
 .venv/
+
+.vercel
