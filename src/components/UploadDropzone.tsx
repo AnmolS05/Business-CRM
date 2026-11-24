@@ -1,13 +1,26 @@
 import React from 'react';
 import { Upload } from 'lucide-react';
 
+/**
+ * Props for UploadDropzone component.
+ */
 interface UploadDropzoneProps {
+  /** Event handler for drag drop events */
   handleDrop: (e: React.DragEvent) => void;
+  /** Event handler for drag over events */
   handleDragOver: (e: React.DragEvent) => void;
+  /** Ref pointing to hidden file input */
   fileInputRef: React.RefObject<HTMLInputElement>;
+  /** Event handler for file input change */
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+/**
+ * Modern Bridgement-styled Drag and Drop upload zone for documents, spreadsheets, and images.
+ *
+ * @param {UploadDropzoneProps} props Component properties.
+ * @returns {React.ReactElement} Upload dropzone element.
+ */
 export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
   handleDrop,
   handleDragOver,
@@ -19,14 +32,8 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onClick={() => fileInputRef.current?.click()}
-      className="relative overflow-hidden border-[3px] border-dashed border-indigo-500/20 hover:border-indigo-500/50 bg-[#0a0f1c]/60 backdrop-blur-3xl rounded-[3rem] p-16 text-center cursor-pointer group transition-all duration-500 shadow-[0_8px_40px_rgb(0,0,0,0.3)]"
+      className="card-surface relative overflow-hidden border-2 border-dashed border-[#D6DAE3] dark:border-white/15 hover:border-[#D20C54]/60 dark:hover:border-[#D20C54]/60 rounded-[12px] p-12 text-center cursor-pointer group transition-all duration-300 shadow-sm hover:shadow-md"
     >
-      {/* Animated Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
-      
-      {/* AI Scanner Laser Line */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-indigo-500 shadow-[0_0_20px_rgba(99,102,241,1)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 translate-y-[-10px] group-hover:animate-[scan_3s_ease-in-out_infinite]" />
-
       <input
         type="file"
         ref={fileInputRef}
@@ -35,27 +42,26 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
         className="hidden"
       />
 
-      <div className="max-w-md mx-auto space-y-8 relative z-10">
-        <div className="w-28 h-28 mx-auto bg-indigo-500/10 rounded-[2.5rem] border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-inner group-hover:scale-110 group-hover:-translate-y-2 group-hover:bg-indigo-500/20 transition-all duration-700 relative backdrop-blur-xl">
-          <div className="absolute inset-0 bg-indigo-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-[2.5rem]" />
-          <Upload className="w-12 h-12 relative z-10 stroke-[3]" />
+      <div className="max-w-md mx-auto space-y-5 relative z-10">
+        <div className="w-14 h-14 mx-auto bg-[#D20C54]/10 dark:bg-[#D20C54]/20 text-[#D20C54] rounded-[7.2px] border border-[#D20C54]/20 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-sm">
+          <Upload className="w-6 h-6 stroke-[2.5]" />
         </div>
 
         <div>
-          <p className="font-serif font-black text-4xl text-white tracking-tight drop-shadow-md">
+          <h3 className="font-heading font-bold text-2xl text-[#545B6D] dark:text-[#FDF5F8] tracking-[-0.03em]">
             Drag & Drop Financial Data
-          </p>
-          <p className="text-[13px] text-indigo-400 mt-4 font-black uppercase tracking-widest flex justify-center items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse" />
+          </h3>
+          <p className="text-xs font-semibold text-[#969CAF] uppercase tracking-wider mt-1.5 flex justify-center items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-[#D20C54] rounded-full animate-pulse" />
             Upload PDFs, Spreadsheets, or Images (Up to 15MB)
           </p>
         </div>
 
         <button
           type="button"
-          className="px-12 py-6 bg-indigo-600 hover:bg-indigo-500 text-white text-[15px] font-black uppercase tracking-widest rounded-2xl transition-all shadow-[0_4px_20px_rgba(79,70,229,0.3)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.4)] active:scale-95 flex items-center justify-center gap-4 mx-auto border border-indigo-400/20"
+          className="btn-primary inline-flex items-center justify-center gap-2.5 mx-auto"
         >
-          <Upload className="w-6 h-6 stroke-[3]" />
+          <Upload className="w-4 h-4 stroke-[2.5]" />
           Browse Local Files
         </button>
       </div>

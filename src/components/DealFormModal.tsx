@@ -33,155 +33,146 @@ export const DealFormModal: React.FC<DealFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto">
-      <div className="absolute inset-0 bg-[#0a0f1c]/80 backdrop-blur-3xl transition-opacity duration-300" onClick={onClose} />
+      <div className="absolute inset-0 bg-[#010844]/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      <div className="relative bg-slate-900/60 rounded-[3rem] shadow-[0_8px_40px_rgb(0,0,0,0.3)] max-w-lg w-full overflow-hidden transition-all animate-in fade-in zoom-in-95 duration-300 border border-indigo-500/20 backdrop-blur-3xl">
-        {/* Decorative Glow */}
-        <div className="absolute -top-20 -right-20 w-80 h-80 bg-indigo-500/20 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-purple-500/10 blur-[80px] rounded-full pointer-events-none" />
+      <div className="relative bg-[#FCFBF9] dark:bg-[#010844] rounded-[12px] shadow-[0px_3.6px_14.4px_rgba(0,13,39,0.15)] max-w-lg w-full overflow-hidden transition-all border border-[#D6DAE3] dark:border-white/15">
         
-        <div className="px-10 py-10 border-b border-indigo-500/20 flex justify-between items-center relative z-10">
-          <div className="flex items-center gap-6">
-            <div className="p-4 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20 shadow-inner">
-              <Sparkles className="w-8 h-8 stroke-[2.5]" />
+        {/* Modal Header */}
+        <div className="px-6 py-5 border-b border-[#D6DAE3] dark:border-white/10 flex justify-between items-center bg-[#FCFBF9] dark:bg-[#040B46]">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-[7.2px] bg-[#D20C54] text-white flex items-center justify-center shadow-sm">
+              <Sparkles className="w-5 h-5 stroke-[2]" />
             </div>
             <div>
-              <h3 className="font-serif font-black text-3xl text-white tracking-tight drop-shadow-md">
+              <h3 className="font-display font-semibold text-lg text-[#010844] dark:text-white tracking-tight">
                 {editingDeal ? 'Edit Sales Deal' : 'Add New Pipeline Lead'}
               </h3>
-              <p className="text-[10px] font-black text-indigo-400 flex items-center gap-2 mt-2 uppercase tracking-widest">
-                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse" /> Pipeline Management
+              <p className="text-[11px] text-[#969CAF] dark:text-[#99AFFD]">
+                Enter enterprise client & deal metadata
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-3 rounded-2xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all hover:scale-110 active:scale-95"
+            className="p-1.5 rounded-[5px] text-[#969CAF] hover:text-[#010844] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
           >
-            <X className="w-5 h-5 stroke-[3]" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-10 space-y-6 relative z-10">
-          <div className="relative group/input">
+        {/* Modal Form */}
+        <form onSubmit={onSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-[12px] font-medium text-[#545B6D] dark:text-[#CBD5E1] mb-1">
+              Client Enterprise Name *
+            </label>
             <input
               type="text"
               required
               value={formData.client_name}
               onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-              className="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl px-5 py-4 pt-6 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-white shadow-inner transition-all group-hover/input:border-slate-600 placeholder-transparent peer"
-              placeholder="Client Name"
+              className="w-full bg-white dark:bg-[#040B46] border border-[#D6DAE3] dark:border-white/15 rounded-[7.2px] px-3.5 py-2.5 text-sm text-[#010844] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00006E] dark:focus:ring-[#00C3F0] transition-all"
+              placeholder="e.g. Tata Consultancy Services"
             />
-            <label className="absolute top-2 left-5 text-[10px] font-black text-indigo-500 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-slate-500 peer-focus:text-indigo-500">
-              Client Name *
-            </label>
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="relative group/input">
-                <input
-                  type="number"
-                  required
-                  min={0}
-                  step={1000}
-                  value={formData.deal_value}
-                  onChange={(e) => setFormData({ ...formData, deal_value: Number(e.target.value) })}
-                  className="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl px-5 py-4 pt-6 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-white shadow-inner transition-all group-hover/input:border-slate-600 placeholder-transparent peer"
-                  placeholder="Deal Value"
-                />
-                <label className="absolute top-2 left-5 text-[10px] font-black text-indigo-500 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-slate-500 peer-focus:text-indigo-500">
-                  Deal Value (in ₹) *
-                </label>
-              </div>
-              <span className="text-[10px] text-indigo-400 mt-2 block font-serif font-bold pl-2">
+              <label className="block text-[12px] font-medium text-[#545B6D] dark:text-[#CBD5E1] mb-1">
+                Deal Value (₹) *
+              </label>
+              <input
+                type="number"
+                required
+                min={0}
+                step={1000}
+                value={formData.deal_value}
+                onChange={(e) => setFormData({ ...formData, deal_value: Number(e.target.value) })}
+                className="w-full bg-white dark:bg-[#040B46] border border-[#D6DAE3] dark:border-white/15 rounded-[7.2px] px-3.5 py-2.5 text-sm text-[#010844] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00006E] dark:focus:ring-[#00C3F0] transition-all"
+                placeholder="500000"
+              />
+              <span className="text-[11px] text-[#00006E] dark:text-[#00C3F0] mt-1 block font-mono font-medium">
                 {formatLakhsCrores(formData.deal_value)}
               </span>
             </div>
 
-            <div className="relative group/input">
+            <div>
+              <label className="block text-[12px] font-medium text-[#545B6D] dark:text-[#CBD5E1] mb-1">
+                Pipeline Stage
+              </label>
               <select
                 value={formData.stage}
                 onChange={(e) => setFormData({ ...formData, stage: e.target.value as DealStage })}
-                className="w-full h-[60px] bg-slate-800/80 border border-slate-700/80 rounded-xl px-5 py-4 pt-6 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-white shadow-inner transition-all group-hover/input:border-slate-600 appearance-none"
+                className="w-full bg-white dark:bg-[#040B46] border border-[#D6DAE3] dark:border-white/15 rounded-[7.2px] px-3.5 py-2.5 text-sm text-[#010844] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00006E] dark:focus:ring-[#00C3F0] transition-all cursor-pointer"
               >
                 {stages.map((s) => (
-                  <option key={s.key} value={s.key} className="bg-slate-800">
+                  <option key={s.key} value={s.key}>
                     {s.label}
                   </option>
                 ))}
               </select>
-              <label className="absolute top-2 left-5 text-[10px] font-black text-indigo-500 uppercase tracking-widest pointer-events-none">
-                Stage
-              </label>
-              <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div className="relative group/input">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[12px] font-medium text-[#545B6D] dark:text-[#CBD5E1] mb-1">
+                Product Category
+              </label>
               <select
                 value={formData.product_category}
                 onChange={(e) => setFormData({ ...formData, product_category: e.target.value })}
-                className="w-full h-[60px] bg-slate-800/80 border border-slate-700/80 rounded-xl px-5 py-4 pt-6 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-white shadow-inner transition-all group-hover/input:border-slate-600 appearance-none"
+                className="w-full bg-white dark:bg-[#040B46] border border-[#D6DAE3] dark:border-white/15 rounded-[7.2px] px-3.5 py-2.5 text-sm text-[#010844] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00006E] dark:focus:ring-[#00C3F0] transition-all cursor-pointer"
               >
-                <option value="Software" className="bg-slate-800">Software</option>
-                <option value="Consulting" className="bg-slate-800">Consulting</option>
-                <option value="Support" className="bg-slate-800">Support</option>
-                <option value="Hardware" className="bg-slate-800">Hardware</option>
-                <option value="AMC Services" className="bg-slate-800">AMC Services</option>
-                <option value="General" className="bg-slate-800">General</option>
+                <option value="Software">Software</option>
+                <option value="Consulting">Consulting</option>
+                <option value="Support">Support</option>
+                <option value="Hardware">Hardware</option>
+                <option value="AMC Services">AMC Services</option>
+                <option value="General">General</option>
               </select>
-              <label className="absolute top-2 left-5 text-[10px] font-black text-indigo-500 uppercase tracking-widest pointer-events-none">
-                Product Category
-              </label>
-              <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </div>
             </div>
 
-            <div className="relative group/input">
+            <div>
+              <label className="block text-[12px] font-medium text-[#545B6D] dark:text-[#CBD5E1] mb-1">
+                Target Close Date
+              </label>
               <input
                 type="date"
                 value={formData.close_date}
                 onChange={(e) => setFormData({ ...formData, close_date: e.target.value })}
-                className="w-full h-[60px] bg-slate-800/80 border border-slate-700/80 rounded-xl px-5 py-4 pt-6 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-white shadow-inner transition-all group-hover/input:border-slate-600 peer"
+                className="w-full bg-white dark:bg-[#040B46] border border-[#D6DAE3] dark:border-white/15 rounded-[7.2px] px-3.5 py-2 text-sm text-[#010844] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00006E] dark:focus:ring-[#00C3F0] transition-all"
               />
-               <label className="absolute top-2 left-5 text-[10px] font-black text-indigo-500 uppercase tracking-widest pointer-events-none transition-all">
-                Target Close Date
-              </label>
             </div>
           </div>
 
-          <div className="relative group/input">
+          <div>
+            <label className="block text-[12px] font-medium text-[#545B6D] dark:text-[#CBD5E1] mb-1">
+              WhatsApp Phone Number
+            </label>
             <input
               type="text"
               value={formData.phone_number}
               onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-              className="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl px-5 py-4 pt-6 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-white shadow-inner transition-all group-hover/input:border-slate-600 placeholder-transparent peer"
-              placeholder="Phone Number"
+              className="w-full bg-white dark:bg-[#040B46] border border-[#D6DAE3] dark:border-white/15 rounded-[7.2px] px-3.5 py-2.5 text-sm text-[#010844] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00006E] dark:focus:ring-[#00C3F0] transition-all"
+              placeholder="919876543210"
             />
-            <label className="absolute top-2 left-5 text-[10px] font-black text-indigo-500 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-slate-500 peer-focus:text-indigo-500">
-              WhatsApp Phone Number
-            </label>
           </div>
 
-          <div className="pt-8 flex flex-wrap-reverse sm:flex-nowrap justify-end items-center gap-5 border-t border-slate-700/50">
+          <div className="pt-4 flex justify-end items-center gap-3 border-t border-[#D6DAE3] dark:border-white/10">
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-6 py-4 text-[13px] font-black tracking-widest uppercase text-slate-400 hover:text-white transition-colors"
+              className="btn-ghost"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="w-full sm:w-auto px-8 py-4 text-[13px] font-black uppercase tracking-widest text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-[0_4px_20px_rgba(79,70,229,0.3)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.4)] active:scale-95 border border-indigo-400/20 transition-all flex justify-center items-center gap-3"
+              className="btn-primary"
             >
-              {editingDeal ? 'Save Changes' : 'Initialize Deal'}
-              <TrendingUp className="w-5 h-5 stroke-[3]" />
+              <span>{editingDeal ? 'Save Changes' : 'Initialize Deal'}</span>
+              <TrendingUp className="w-4 h-4" />
             </button>
           </div>
         </form>

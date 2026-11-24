@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import {
-  Plus,
   Trash2,
   Receipt,
   TrendingUp,
   TrendingDown,
   Search,
-  PieChart,
 } from 'lucide-react';
 import { Expense, ExpenseType, Deal } from '../types';
-import { formatINR, formatLakhsCrores, formatIndianFullWithCompact } from '../utils/currency';
+import { formatINR, formatLakhsCrores } from '../utils/currency';
 import { ExpenseForm } from './ExpenseForm';
 
 /**
@@ -29,6 +27,7 @@ interface ExpenseTrackerProps {
 /**
  * Enterprise Expense Ledger & Profitability Component.
  * Tracks itemized company expenses, calculates net profit against won sales revenue, and filters expenditures.
+ * Styled per Bridgement Design System.
  *
  * @param {ExpenseTrackerProps} props Component properties.
  * @returns {React.ReactElement} Expense tracking layout.
@@ -70,11 +69,6 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
   const profitMarginPercent =
     grossRevenue > 0 ? ((netProfit / grossRevenue) * 100).toFixed(1) : '0';
 
-  /**
-   * Handles expense creation submission.
-   *
-   * @param {React.FormEvent} e Form event.
-   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.expense_name.trim() || formData.amount <= 0) return;
@@ -110,81 +104,76 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
     });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* KPI Financial Overview Header */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Gross Revenue Card */}
-        <div className="relative group rounded-[2.5rem] p-8 overflow-hidden bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-blue-100/50 dark:border-slate-800/80 shadow-xl shadow-blue-900/5 dark:shadow-none hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500">
-          <div className="absolute -top-10 -right-10 w-48 h-48 bg-blue-500/10 dark:bg-blue-500/10 blur-[80px] rounded-full pointer-events-none group-hover:scale-150 transition-transform duration-700" />
-          <div className="flex justify-between items-start mb-6 relative z-10">
-            <span className="text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-500">
+        <div className="rounded-[12px] p-5 bg-[#FCFBF9] dark:bg-[#010844] border border-[#D6DAE3] dark:border-white/10 shadow-[0px_3.6px_14.4px_rgba(0,13,39,0.06)] transition-all">
+          <div className="flex justify-between items-start mb-3">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#969CAF]">
               Gross Revenue
             </span>
-            <div className="p-3.5 rounded-[1.25rem] bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/60 shadow-inner group-hover:scale-110 transition-transform duration-500">
-              <TrendingUp className="w-6 h-6 stroke-[2.5]" />
+            <div className="p-2 rounded-[7.2px] bg-[#00C3F0]/10 text-[#00C3F0]">
+              <TrendingUp className="w-5 h-5 stroke-[2.5]" />
             </div>
           </div>
-          <div className="relative z-10">
-            <div className="text-4xl font-serif font-black text-gray-900 dark:text-slate-100 tracking-tight">
+          <div>
+            <div className="text-2xl sm:text-3xl font-display font-semibold text-[#010844] dark:text-white tracking-tight">
               {formatLakhsCrores(grossRevenue)}
             </div>
-            <div className="text-xs font-bold text-gray-400 dark:text-slate-500 mt-2.5 flex items-center gap-1.5 uppercase tracking-wide">
-              <span className="text-blue-600 dark:text-blue-400 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> {deals.filter((d) => d.stage === 'Won').length} Won Deals</span>
+            <div className="text-xs text-[#969CAF] mt-1 flex items-center gap-1">
+              <span className="text-[#00C3F0] font-medium">{deals.filter((d) => d.stage === 'Won').length} Won Deals</span>
             </div>
           </div>
         </div>
 
         {/* Total Expenditures Card */}
-        <div className="relative group rounded-[2.5rem] p-8 overflow-hidden bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-rose-100/50 dark:border-slate-800/80 shadow-xl shadow-rose-900/5 dark:shadow-none hover:shadow-2xl hover:shadow-rose-500/10 transition-all duration-500">
-          <div className="absolute -top-10 -right-10 w-48 h-48 bg-rose-500/10 dark:bg-rose-500/10 blur-[80px] rounded-full pointer-events-none group-hover:scale-150 transition-transform duration-700" />
-          <div className="flex justify-between items-start mb-6 relative z-10">
-            <span className="text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-500">
+        <div className="rounded-[12px] p-5 bg-[#FCFBF9] dark:bg-[#010844] border border-[#D6DAE3] dark:border-white/10 shadow-[0px_3.6px_14.4px_rgba(0,13,39,0.06)] transition-all">
+          <div className="flex justify-between items-start mb-3">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#969CAF]">
               Total Expenses
             </span>
-            <div className="p-3.5 rounded-[1.25rem] bg-rose-50 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 border border-rose-100/50 dark:border-rose-800/60 shadow-inner group-hover:scale-110 transition-transform duration-500">
-              <TrendingDown className="w-6 h-6 stroke-[2.5]" />
+            <div className="p-2 rounded-[7.2px] bg-[#D20C54]/10 text-[#D20C54]">
+              <TrendingDown className="w-5 h-5 stroke-[2.5]" />
             </div>
           </div>
-          <div className="relative z-10">
-            <div className="text-4xl font-serif font-black text-rose-600 dark:text-rose-400 tracking-tight">
-              <span className="animate-in zoom-in-95 duration-300 inline-block">{formatLakhsCrores(totalExpenditures)}</span>
+          <div>
+            <div className="text-2xl sm:text-3xl font-display font-semibold text-[#D20C54] tracking-tight">
+              {formatLakhsCrores(totalExpenditures)}
             </div>
-            <div className="text-xs font-bold text-gray-400 dark:text-slate-500 mt-2.5 uppercase tracking-wide flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-slate-600" /> Across all categories
+            <div className="text-xs text-[#969CAF] mt-1">
+              Fixed & Variable Expenditures
             </div>
           </div>
         </div>
 
         {/* Net Profit Card */}
-        <div className="relative md:col-span-2 group rounded-[2.5rem] p-8 overflow-hidden bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-indigo-100/50 dark:border-slate-800/80 shadow-xl shadow-indigo-900/5 dark:shadow-none hover:shadow-2xl transition-all duration-500">
-          <div className={`absolute -top-10 -right-10 w-64 h-64 blur-[100px] rounded-full pointer-events-none transition-all duration-1000 group-hover:scale-150 ${netProfit >= 0 ? 'bg-emerald-500/10 dark:bg-emerald-500/15 group-hover:bg-emerald-500/20' : 'bg-rose-500/10 dark:bg-rose-500/15 group-hover:bg-rose-500/20'}`} />
-          <div className="flex justify-between items-start mb-6 relative z-10">
-            <span className="text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-500">
+        <div className="md:col-span-2 rounded-[12px] p-5 bg-[#FCFBF9] dark:bg-[#010844] border border-[#D6DAE3] dark:border-white/10 shadow-[0px_3.6px_14.4px_rgba(0,13,39,0.06)] transition-all">
+          <div className="flex justify-between items-start mb-3">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#969CAF]">
               Net Profit Margin
             </span>
-            <div className="text-right">
-              <span className={`text-4xl font-serif font-black tracking-tight drop-shadow-sm ${netProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                {profitMarginPercent}%
-              </span>
-            </div>
+            <span className={`text-2xl sm:text-3xl font-display font-semibold tracking-tight ${netProfit >= 0 ? 'text-[#00C3F0]' : 'text-[#D20C54]'}`}>
+              {profitMarginPercent}%
+            </span>
           </div>
-          <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
             <div>
-              <div className={`text-3xl font-serif font-black tracking-tight ${netProfit >= 0 ? 'text-gray-900 dark:text-slate-100' : 'text-rose-600 dark:text-rose-400'}`}>
+              <div className={`text-2xl sm:text-3xl font-display font-semibold tracking-tight ${netProfit >= 0 ? 'text-[#010844] dark:text-white' : 'text-[#D20C54]'}`}>
                 {formatLakhsCrores(netProfit)}
               </div>
-              <div className="text-xs font-bold text-gray-400 dark:text-slate-500 mt-2 flex items-center gap-1.5 uppercase tracking-wide">
-                 <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-slate-600" /> Net Earnings After Operating Costs
+              <div className="text-xs text-[#969CAF] mt-1">
+                Net earnings after operational overhead
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="bg-gray-50 dark:bg-slate-950/40 px-4 py-2 rounded-[1rem] border border-gray-100 dark:border-slate-800 shadow-inner">
-                <span className="block text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-0.5">Fixed OpEx</span>
-                <span className="text-sm font-bold font-mono text-gray-900 dark:text-slate-300">{formatLakhsCrores(fixedExpensesTotal)}</span>
+            <div className="flex items-center gap-2">
+              <div className="bg-white dark:bg-[#040B46] px-3 py-1.5 rounded-[7.2px] border border-[#D6DAE3] dark:border-white/10">
+                <span className="block text-[10px] uppercase font-semibold text-[#969CAF]">Fixed</span>
+                <span className="text-xs font-mono font-medium text-[#010844] dark:text-white">{formatLakhsCrores(fixedExpensesTotal)}</span>
               </div>
-              <div className="bg-gray-50 dark:bg-slate-950/40 px-4 py-2 rounded-[1rem] border border-gray-100 dark:border-slate-800 shadow-inner">
-                <span className="block text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-0.5">Variable</span>
-                <span className="text-sm font-bold font-mono text-gray-900 dark:text-slate-300">{formatLakhsCrores(variableExpensesTotal)}</span>
+              <div className="bg-white dark:bg-[#040B46] px-3 py-1.5 rounded-[7.2px] border border-[#D6DAE3] dark:border-white/10">
+                <span className="block text-[10px] uppercase font-semibold text-[#969CAF]">Variable</span>
+                <span className="text-xs font-mono font-medium text-[#010844] dark:text-white">{formatLakhsCrores(variableExpensesTotal)}</span>
               </div>
             </div>
           </div>
@@ -192,7 +181,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
       </div>
 
       {/* Main Content: Input Form & Expense Ledger Table */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Log Expense Form */}
         <ExpenseForm 
           formData={formData} 
@@ -202,141 +191,102 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
         />
 
         {/* Expense Ledger Table */}
-        <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-gray-200 dark:border-slate-800 rounded-[2.5rem] p-8 sm:p-10 shadow-xl shadow-gray-900/5 dark:shadow-none transition-all duration-500 lg:col-span-2 flex flex-col h-fit">
-          <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-8 pb-6 border-b border-gray-100 dark:border-slate-800/80">
+        <div className="bg-[#FCFBF9] dark:bg-[#010844] border border-[#D6DAE3] dark:border-white/10 rounded-[12px] p-5 sm:p-6 shadow-[0px_3.6px_14.4px_rgba(0,13,39,0.06)] lg:col-span-2 flex flex-col h-fit">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 pb-4 border-b border-[#D6DAE3] dark:border-white/10">
             <div>
-              <h3 className="font-serif font-black text-3xl text-gray-900 dark:text-slate-100 flex items-center gap-4 tracking-tight">
-                Expense Ledger
-                <span className="text-[11px] font-black px-4 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/30 shadow-inner tracking-widest">
+              <div className="flex items-center gap-2">
+                <h3 className="font-display font-semibold text-lg sm:text-xl text-[#010844] dark:text-white tracking-tight">
+                  Expense Ledger
+                </h3>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-[4px] bg-[#EAF1FF] text-[#00006E] dark:bg-[#00C3F0]/20 dark:text-[#00C3F0]">
                   {filteredExpenses.length}
                 </span>
-              </h3>
-              <p className="text-[11px] font-black text-gray-400 dark:text-slate-500 mt-2 uppercase tracking-widest">Itemized Company Expenditures</p>
+              </div>
+              <p className="text-[11px] text-[#969CAF] mt-0.5">Itemized corporate expenditures</p>
             </div>
 
             {/* Controls */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
-              <div className="relative w-full sm:w-auto">
-                <Search className="w-5 h-5 stroke-[2.5] absolute left-5 top-[18px] text-gray-400 dark:text-slate-500" />
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-48">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-[#969CAF]" />
                 <input
                   type="text"
                   placeholder="Filter expenses..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full sm:w-72 pl-14 pr-6 py-4 text-sm font-bold border border-gray-200 dark:border-slate-700/80 rounded-2xl bg-gray-50/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-blue-500/20 outline-none transition-all shadow-inner"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs border border-[#D6DAE3] dark:border-white/15 rounded-[7.2px] bg-white dark:bg-[#040B46] text-[#010844] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#00006E]"
                 />
               </div>
 
-              <div className="flex rounded-[1.5rem] bg-gray-50/80 dark:bg-slate-950/40 p-2 border border-gray-200/80 dark:border-slate-700/80 shadow-inner w-full sm:w-auto">
+              <div className="flex rounded-[7.2px] bg-white dark:bg-[#040B46] p-0.5 border border-[#D6DAE3] dark:border-white/10">
                 {(['All', 'Fixed', 'Variable'] as const).map((t) => (
                   <button
                     key={t}
                     onClick={() => setFilterType(t)}
-                    className={`flex-1 sm:flex-none px-6 py-3 rounded-xl text-[11px] font-black tracking-widest uppercase transition-all ${
+                    className={`px-3 py-1 rounded-[5px] text-xs font-medium transition-all cursor-pointer ${
                       filterType === t
-                        ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-blue-400 shadow-md border border-gray-200/50 dark:border-slate-600/50'
-                        : 'text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-slate-300 hover:bg-gray-100/50 dark:hover:bg-slate-800/50 border border-transparent'
+                        ? 'bg-[#D20C54] text-white shadow-sm'
+                        : 'text-[#969CAF] hover:text-[#010844] dark:hover:text-white'
                     }`}
                   >
                     {t}
                   </button>
                 ))}
               </div>
-
-              <div className="flex rounded-[1.5rem] bg-gray-50/80 dark:bg-slate-950/40 p-2 border border-gray-200/80 dark:border-slate-700/80 shadow-inner w-full sm:w-auto">
-                <button
-                  onClick={() => {
-                    if (sortBy === 'date') setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-                    else { setSortBy('date'); setSortOrder('desc'); }
-                  }}
-                  className={`flex-1 sm:flex-none px-6 py-3 rounded-xl text-[11px] font-black tracking-widest uppercase transition-all ${
-                    sortBy === 'date'
-                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-blue-400 shadow-md border border-gray-200/50 dark:border-slate-600/50'
-                      : 'text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-slate-300 hover:bg-gray-100/50 dark:hover:bg-slate-800/50 border border-transparent'
-                  }`}
-                >
-                  Date {sortBy === 'date' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
-                </button>
-                <button
-                  onClick={() => {
-                    if (sortBy === 'amount') setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-                    else { setSortBy('amount'); setSortOrder('desc'); }
-                  }}
-                  className={`flex-1 sm:flex-none px-6 py-3 rounded-xl text-[11px] font-black tracking-widest uppercase transition-all ${
-                    sortBy === 'amount'
-                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-blue-400 shadow-md border border-gray-200/50 dark:border-slate-600/50'
-                      : 'text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-slate-300 hover:bg-gray-100/50 dark:hover:bg-slate-800/50 border border-transparent'
-                  }`}
-                >
-                  Amount {sortBy === 'amount' ? (sortOrder === 'desc' ? '↓' : '↑') : ''}
-                </button>
-              </div>
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-[1.5rem] border border-gray-200/80 dark:border-slate-700/80 shadow-inner flex-1 bg-white/40 dark:bg-slate-950/20">
-            <table className="w-full text-left border-collapse min-w-[600px]">
+          <div className="overflow-x-auto rounded-[8px] border border-[#D6DAE3] dark:border-white/10 bg-white dark:bg-[#040B46]/60">
+            <table className="w-full text-left border-collapse min-w-[500px]">
               <thead>
-                <tr className="border-b border-gray-200/80 dark:border-slate-700/80 text-[10px] font-black tracking-widest uppercase text-gray-400 dark:text-slate-500 bg-gray-50/80 dark:bg-slate-900/90 backdrop-blur-md">
-                  <th className="p-6 pl-8">Expense Item</th>
-                  <th className="p-6">Category</th>
-                  <th className="p-6">Date Logged</th>
-                  <th className="p-6 text-right">Amount (₹)</th>
-                  <th className="p-6 pr-8 text-center">Action</th>
+                <tr className="border-b border-[#D6DAE3] dark:border-white/10 text-[11px] font-semibold uppercase tracking-wider text-[#969CAF] bg-[#FCFBF9] dark:bg-[#040B46]">
+                  <th className="py-3 px-4">Expense Item</th>
+                  <th className="py-3 px-4">Type</th>
+                  <th className="py-3 px-4">Date Logged</th>
+                  <th className="py-3 px-4 text-right">Amount (₹)</th>
+                  <th className="py-3 px-4 text-center">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-slate-800/50">
+              <tbody className="divide-y divide-[#D6DAE3]/50 dark:divide-white/5 text-[13px]">
                 {filteredExpenses.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-32 text-center relative overflow-hidden group">
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-rose-500/10 dark:bg-rose-500/10 rounded-full blur-[100px] pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
-                      <div className="relative z-10 flex flex-col items-center gap-6">
-                        <div className="relative p-10 bg-white/70 dark:bg-slate-900/60 rounded-full border border-gray-200/50 dark:border-slate-700/50 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.5)] backdrop-blur-2xl group-hover:-translate-y-3 group-hover:shadow-[0_30px_60px_-15px_rgba(244,63,94,0.15)] transition-all duration-500">
-                          <div className="absolute inset-0 bg-gradient-to-tr from-rose-100/50 to-transparent dark:from-rose-900/20 dark:to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                          <Receipt className="w-14 h-14 text-gray-400 dark:text-slate-500 stroke-[2] relative z-10 group-hover:text-rose-500 dark:group-hover:text-rose-400 transition-colors duration-500" />
-                        </div>
-                        <div className="space-y-3 relative z-10">
-                          <h4 className="font-serif font-black text-3xl text-gray-900 dark:text-slate-100 tracking-tight">Ledger Empty</h4>
-                          <p className="text-xs font-black uppercase tracking-widest text-gray-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed px-4">
-                            No expenditures found. Log an expense on the left to start tracking profitability.
-                          </p>
-                        </div>
-                      </div>
+                    <td colSpan={5} className="py-16 text-center text-[#969CAF]">
+                      <Receipt className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                      <p className="font-medium text-sm text-[#545B6D] dark:text-[#CBD5E1]">No expenses found</p>
+                      <p className="text-xs text-[#969CAF]">Log an operational expense on the left to track ledger data.</p>
                     </td>
                   </tr>
                 ) : (
                   filteredExpenses.map((exp) => (
                     <tr
                       key={exp.id}
-                      className="hover:bg-gray-50/90 dark:hover:bg-slate-800/80 transition-all duration-200 group relative"
+                      className="hover:bg-[#FCFBF9] dark:hover:bg-white/5 transition-colors"
                     >
-                      <td className="p-6 pl-8 font-black text-gray-900 dark:text-slate-200 text-[15px]">
+                      <td className="py-3 px-4 font-medium text-[#010844] dark:text-white">
                         {exp.expense_name}
                       </td>
-                      <td className="p-6">
-                        <span className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase border shadow-sm ${
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-0.5 rounded-[4px] text-[11px] font-medium ${
                           exp.type === 'Fixed' 
-                            ? 'bg-blue-50/80 text-blue-600 border-blue-200/80 dark:bg-blue-900/40 dark:text-blue-400 dark:border-blue-800/60' 
-                            : 'bg-amber-50/80 text-amber-600 border-amber-200/80 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-800/60'
+                            ? 'bg-[#EAF1FF] text-[#00006E] dark:bg-[#00C3F0]/20 dark:text-[#00C3F0]' 
+                            : 'bg-[#D20C54]/10 text-[#D20C54]'
                         }`}>
                           {exp.type}
                         </span>
                       </td>
-                      <td className="p-6 text-gray-500 dark:text-slate-400 text-xs font-bold tracking-widest uppercase">
+                      <td className="py-3 px-4 text-[#969CAF] text-xs">
                         {exp.date_logged}
                       </td>
-                      <td className="p-6 text-right">
-                        <div className="font-mono font-black text-rose-600 dark:text-rose-400 text-base">
-                          {formatINR(exp.amount)}
-                        </div>
+                      <td className="py-3 px-4 text-right font-mono font-medium text-[#D20C54]">
+                        {formatINR(exp.amount)}
                       </td>
-                      <td className="p-6 pr-8 text-center">
+                      <td className="py-3 px-4 text-center">
                         <button
                           onClick={() => onDeleteExpense(exp.id)}
-                          className="p-3.5 rounded-xl text-gray-400 dark:text-slate-500 opacity-50 group-hover:opacity-100 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/20 transition-all duration-300 hover:scale-110 active:scale-95 mx-auto block shadow-inner border border-transparent hover:border-rose-100 dark:hover:border-rose-500/30"
+                          className="p-1 text-[#969CAF] hover:text-[#D20C54] rounded-[4px] transition-all cursor-pointer"
                           title="Delete expense"
                         >
-                          <Trash2 className="w-5 h-5 stroke-[2.5]" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
@@ -344,12 +294,12 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                 )}
               </tbody>
               {filteredExpenses.length > 0 && (
-                <tfoot className="bg-gray-50/50 dark:bg-slate-900/50 border-t-2 border-gray-200/80 dark:border-slate-700/80">
+                <tfoot className="bg-[#FCFBF9] dark:bg-[#040B46] border-t border-[#D6DAE3] dark:border-white/10 text-xs">
                   <tr>
-                    <td colSpan={3} className="p-6 pl-8 text-right font-black tracking-widest uppercase text-gray-500 dark:text-slate-400 text-[11px]">
+                    <td colSpan={3} className="py-3 px-4 text-right font-medium text-[#969CAF]">
                       Filtered Total:
                     </td>
-                    <td className="p-6 text-right font-mono font-black text-rose-600 dark:text-rose-400 text-lg">
+                    <td className="py-3 px-4 text-right font-mono font-semibold text-[#D20C54] text-sm">
                       {formatINR(filteredExpenses.reduce((sum, exp) => sum + exp.amount, 0))}
                     </td>
                     <td></td>

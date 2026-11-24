@@ -182,16 +182,19 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ deals,
 
   /**
    * Custom Recharts Tooltip component formatting raw monetary values into Indian currency notation.
+   *
+   * @param {any} props Tooltip active payload and label properties.
+   * @returns {React.ReactElement | null} Formatted tooltip element.
    */
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-[#0a0f1c]/90 backdrop-blur-xl p-5 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.2)] border border-indigo-500/30 space-y-3 min-w-[200px]">
-          <p className="font-black uppercase tracking-widest text-[11px] text-slate-400 border-b border-slate-800/80 pb-3">{label}</p>
+        <div className="bg-[#010844]/95 backdrop-blur-xl p-4 rounded-[12px] shadow-2xl border border-white/10 space-y-2.5 min-w-[200px]">
+          <p className="font-bold uppercase tracking-wider text-[11px] text-[#969CAF] border-b border-white/10 pb-2 font-mono">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} style={{ color: entry.color }} className="flex justify-between items-center gap-6 font-mono">
-              <span className="font-bold text-sm">{entry.name}:</span>
-              <span className="font-black text-base drop-shadow-sm">{formatLakhsCrores(entry.value)}</span>
+              <span className="font-semibold text-xs text-[#CBD5E1]">{entry.name}:</span>
+              <span className="font-bold text-sm tracking-tight">{formatLakhsCrores(entry.value)}</span>
             </p>
           ))}
         </div>
@@ -200,11 +203,12 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ deals,
     return null;
   };
 
-  const gridStroke = '#334155';
-  const axisStroke = '#94a3b8';
-  const primaryFill = '#60a5fa';
-  const dangerFill = '#fb7185';
-  const successFill = '#34d399';
+  const gridStroke = isDarkMode ? 'rgba(255, 255, 255, 0.08)' : '#EAF1FF';
+  const axisStroke = '#969CAF';
+  const primaryFill = '#D20C54';
+  const cyanFill = '#00C3F0';
+  const navyFill = '#172597';
+  const periwinkleFill = '#99AFFD';
 
   return (
     <div className="space-y-6">
@@ -232,125 +236,36 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ deals,
       />
 
       {/* Feature 4: Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Chart 1: Month vs. Sales (Line Chart) */}
-        <div className="relative overflow-hidden bg-[#0a0f1c]/90 backdrop-blur-3xl border border-indigo-500/20 rounded-[2.5rem] p-10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(79,70,229,0.15)] hover:border-indigo-500/40 transition-all duration-500 group flex flex-col">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
-          <div className="relative z-10 flex flex-wrap justify-between items-center mb-8 border-b border-indigo-500/20 pb-6">
-            <div className="flex items-center gap-6">
-              <div className="p-5 bg-indigo-500/10 text-indigo-400 rounded-[1.5rem] border border-indigo-500/20 shadow-inner group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all duration-500">
-                <TrendingUp className="w-8 h-8 stroke-[3]" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Chart 1: Month vs. Sales (Line / Area Chart) */}
+        <div className="card-surface p-7 flex flex-col group relative overflow-hidden">
+          <div className="flex flex-wrap justify-between items-center mb-6 border-b border-[#D6DAE3]/60 dark:border-white/10 pb-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-[7.2px] bg-[#D20C54]/10 dark:bg-[#D20C54]/20 text-[#D20C54] flex items-center justify-center border border-[#D20C54]/20 transition-transform group-hover:scale-105">
+                <TrendingUp className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-serif font-black text-3xl text-white tracking-tight drop-shadow-md">
+                <h3 className="font-heading font-bold text-xl text-[#545B6D] dark:text-[#FDF5F8] tracking-[-0.03em]">
                   Month vs. Sales Revenue
                 </h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse" /> Won deals grouped by close date
+                <p className="text-[11px] font-semibold text-[#969CAF] uppercase tracking-wider mt-0.5 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-[#D20C54] rounded-full animate-pulse" /> Won deals grouped by close date
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="relative h-72 w-full bg-slate-900/50 border border-slate-700/50 rounded-[2rem] p-6 shadow-inner backdrop-blur-sm z-10">
+          <div className="relative h-72 w-full bg-[#FCFBF9]/80 dark:bg-[#05081E]/60 border border-[#D6DAE3]/50 dark:border-white/5 rounded-[12px] p-4 shadow-inner">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={monthVsSalesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={primaryFill} stopOpacity={0.5}/>
+                    <stop offset="5%" stopColor={primaryFill} stopOpacity={0.45}/>
                     <stop offset="95%" stopColor={primaryFill} stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} opacity={0.3} />
-                <XAxis dataKey="month" stroke={axisStroke} fontSize={12} fontWeight={600} tickLine={false} axisLine={false} dy={10} />
-                <YAxis
-                  stroke={axisStroke}
-                  fontSize={12}
-                  fontWeight={600}
-                  tickLine={false} axisLine={false}
-                  tickFormatter={(v) => formatLakhsCrores(v)}
-                />
-                <Tooltip content={<CustomTooltip />} cursor={{ stroke: gridStroke, strokeWidth: 2, strokeOpacity: 0.5 }} />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  name="Sales Revenue"
-                  stroke={primaryFill}
-                  strokeWidth={4}
-                  fillOpacity={1}
-                  fill="url(#colorRevenue)"
-                  activeDot={{ r: 8, strokeWidth: 0, fill: primaryFill }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Chart 2: Product vs. Sales (Bar Chart) */}
-        <div className="relative overflow-hidden bg-[#0a0f1c]/90 backdrop-blur-3xl border border-blue-500/20 rounded-[2.5rem] p-10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(59,130,246,0.15)] hover:border-blue-500/40 transition-all duration-500 group flex flex-col">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 blur-[100px] rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-cyan-500/10 blur-[80px] rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
-          <div className="relative z-10 flex flex-wrap justify-between items-center mb-8 border-b border-blue-500/20 pb-6">
-            <div className="flex items-center gap-6">
-              <div className="p-5 bg-blue-500/10 text-blue-400 rounded-[1.5rem] border border-blue-500/20 shadow-inner group-hover:scale-110 group-hover:bg-blue-500/20 transition-all duration-500">
-                <BarChart3 className="w-8 h-8 stroke-[3]" />
-              </div>
-              <div>
-                <h3 className="font-serif font-black text-3xl text-white tracking-tight drop-shadow-md">
-                  Category Revenue
-                </h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" /> Revenue generation per category
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative h-72 w-full bg-slate-900/50 border border-slate-700/50 rounded-[2rem] p-6 shadow-inner backdrop-blur-sm z-10">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={productVsSalesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} opacity={0.3} />
-                <XAxis dataKey="category" stroke={axisStroke} fontSize={12} fontWeight={600} tickLine={false} axisLine={false} dy={10} />
-                <YAxis
-                  stroke={axisStroke}
-                  fontSize={12}
-                  fontWeight={600}
-                  tickLine={false} axisLine={false}
-                  tickFormatter={(v) => formatLakhsCrores(v)}
-                />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: gridStroke, opacity: 0.1 }} />
-                <Bar dataKey="revenue" name="Category Sales" fill={primaryFill} radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Chart 3: Revenue vs. Expenses Comparison (Comparison Bar Chart) */}
-        <div className="relative overflow-hidden bg-[#0a0f1c]/90 backdrop-blur-3xl border border-orange-500/20 rounded-[2.5rem] p-10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(249,115,22,0.15)] hover:border-orange-500/40 lg:col-span-2 transition-all duration-500 group flex flex-col">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/10 blur-[100px] rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
-          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-rose-500/10 blur-[80px] rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
-          <div className="relative z-10 flex flex-wrap justify-between items-center mb-8 border-b border-orange-500/20 pb-6">
-            <div className="flex items-center gap-6">
-              <div className="p-5 bg-orange-500/10 text-orange-400 rounded-[1.5rem] border border-orange-500/20 shadow-inner group-hover:scale-110 group-hover:bg-orange-500/20 transition-all duration-500">
-                <IndianRupee className="w-8 h-8 stroke-[3]" />
-              </div>
-              <div>
-                <h3 className="font-serif font-black text-3xl text-white tracking-tight drop-shadow-md">
-                  Revenue vs. Expenses Cash Flow
-                </h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" /> Monthly comparison of incoming revenue vs operational expenses
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative h-80 w-full bg-slate-900/50 border border-slate-700/50 rounded-[2rem] p-8 shadow-inner backdrop-blur-sm z-10">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={comparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} opacity={0.3} />
-                <XAxis dataKey="month" stroke={axisStroke} fontSize={12} fontWeight={600} tickLine={false} axisLine={false} dy={10} />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                <XAxis dataKey="month" stroke={axisStroke} fontSize={11} fontWeight={600} tickLine={false} axisLine={false} dy={8} />
                 <YAxis
                   stroke={axisStroke}
                   fontSize={11}
@@ -358,11 +273,94 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ deals,
                   tickLine={false} axisLine={false}
                   tickFormatter={(v) => formatLakhsCrores(v)}
                 />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: gridStroke, opacity: 0.1 }} />
-                <Legend wrapperStyle={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em', color: axisStroke, paddingTop: '20px' }} />
-                <Bar dataKey="Revenue" fill={primaryFill} radius={[6, 6, 0, 0]} />
-                <Bar dataKey="Expenses" fill={dangerFill} radius={[6, 6, 0, 0]} />
-                <Line type="monotone" dataKey="NetProfit" name="Net Profit Trend" stroke={successFill} strokeWidth={4} dot={{ r: 6, fill: successFill, strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 8, strokeWidth: 0 }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ stroke: primaryFill, strokeWidth: 1.5, strokeDasharray: '4 4' }} />
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  name="Sales Revenue"
+                  stroke={primaryFill}
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorRevenue)"
+                  activeDot={{ r: 6, strokeWidth: 2, stroke: '#FFFFFF', fill: primaryFill }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Chart 2: Product vs. Sales (Bar Chart) */}
+        <div className="card-surface p-7 flex flex-col group relative overflow-hidden">
+          <div className="flex flex-wrap justify-between items-center mb-6 border-b border-[#D6DAE3]/60 dark:border-white/10 pb-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-[7.2px] bg-[#00C3F0]/10 dark:bg-[#00C3F0]/20 text-[#00C3F0] flex items-center justify-center border border-[#00C3F0]/20 transition-transform group-hover:scale-105">
+                <BarChart3 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-xl text-[#545B6D] dark:text-[#FDF5F8] tracking-[-0.03em]">
+                  Category Revenue
+                </h3>
+                <p className="text-[11px] font-semibold text-[#969CAF] uppercase tracking-wider mt-0.5 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-[#00C3F0] rounded-full animate-pulse" /> Revenue generation per category
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative h-72 w-full bg-[#FCFBF9]/80 dark:bg-[#05081E]/60 border border-[#D6DAE3]/50 dark:border-white/5 rounded-[12px] p-4 shadow-inner">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={productVsSalesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                <XAxis dataKey="category" stroke={axisStroke} fontSize={11} fontWeight={600} tickLine={false} axisLine={false} dy={8} />
+                <YAxis
+                  stroke={axisStroke}
+                  fontSize={11}
+                  fontWeight={600}
+                  tickLine={false} axisLine={false}
+                  tickFormatter={(v) => formatLakhsCrores(v)}
+                />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: primaryFill, opacity: 0.08 }} />
+                <Bar dataKey="revenue" name="Category Sales" fill={cyanFill} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Chart 3: Revenue vs. Expenses Comparison (Comparison Bar Chart) */}
+        <div className="card-surface p-7 lg:col-span-2 flex flex-col group relative overflow-hidden">
+          <div className="flex flex-wrap justify-between items-center mb-6 border-b border-[#D6DAE3]/60 dark:border-white/10 pb-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-[7.2px] bg-[#00006E]/10 dark:bg-[#99AFFD]/20 text-[#00006E] dark:text-[#99AFFD] flex items-center justify-center border border-[#00006E]/20 transition-transform group-hover:scale-105">
+                <IndianRupee className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-xl text-[#545B6D] dark:text-[#FDF5F8] tracking-[-0.03em]">
+                  Revenue vs. Expenses Cash Flow
+                </h3>
+                <p className="text-[11px] font-semibold text-[#969CAF] uppercase tracking-wider mt-0.5 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-[#D20C54] rounded-full animate-pulse" /> Monthly comparison of incoming revenue vs operational expenses
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative h-80 w-full bg-[#FCFBF9]/80 dark:bg-[#05081E]/60 border border-[#D6DAE3]/50 dark:border-white/5 rounded-[12px] p-6 shadow-inner">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={comparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                <XAxis dataKey="month" stroke={axisStroke} fontSize={11} fontWeight={600} tickLine={false} axisLine={false} dy={8} />
+                <YAxis
+                  stroke={axisStroke}
+                  fontSize={11}
+                  fontWeight={600}
+                  tickLine={false} axisLine={false}
+                  tickFormatter={(v) => formatLakhsCrores(v)}
+                />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: primaryFill, opacity: 0.05 }} />
+                <Legend wrapperStyle={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: axisStroke, paddingTop: '16px' }} />
+                <Bar dataKey="Revenue" fill={primaryFill} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Expenses" fill={isDarkMode ? periwinkleFill : navyFill} radius={[4, 4, 0, 0]} />
+                <Line type="monotone" dataKey="NetProfit" name="Net Profit Trend" stroke={cyanFill} strokeWidth={3} dot={{ r: 4, fill: cyanFill, strokeWidth: 2, stroke: '#FFFFFF' }} activeDot={{ r: 6, strokeWidth: 0 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>

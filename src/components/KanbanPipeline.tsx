@@ -10,8 +10,6 @@ import {
   Edit2,
   Layers,
   Sparkles,
-  X,
-  TrendingUp
 } from 'lucide-react';
 import { Deal, DealStage } from '../types';
 import { formatLakhsCrores, formatINR } from '../utils/currency';
@@ -34,13 +32,14 @@ interface KanbanPipelineProps {
 
 /**
  * Stage configuration mapping keys to labels, colors, and badge styles.
+ * Styled with Bridgement color palette (Cyan #00C3F0, Periwinkle #99AFFD, Sky #5BD6F5, Magenta #D20C54, Slate #545B6D).
  */
-const STAGES: { key: DealStage; label: string; color: string; badgeColor: string; topBorder: string }[] = [
-  { key: 'New Lead', label: 'New Lead', color: 'border-blue-500/20 text-blue-400 bg-blue-500/10', badgeColor: 'bg-blue-500/10 text-blue-400 border border-blue-500/20 backdrop-blur-md', topBorder: 'border-t-2 border-t-blue-500 shadow-[0_-2px_10px_rgba(59,130,246,0.5)]' },
-  { key: 'Contacted', label: 'Contacted', color: 'border-amber-500/20 text-amber-400 bg-amber-500/10', badgeColor: 'bg-amber-500/10 text-amber-400 border border-amber-500/20 backdrop-blur-md', topBorder: 'border-t-2 border-t-amber-500 shadow-[0_-2px_10px_rgba(245,158,11,0.5)]' },
-  { key: 'Proposal Sent', label: 'Proposal Sent', color: 'border-purple-500/20 text-purple-400 bg-purple-500/10', badgeColor: 'bg-purple-500/10 text-purple-400 border border-purple-500/20 backdrop-blur-md', topBorder: 'border-t-2 border-t-purple-500 shadow-[0_-2px_10px_rgba(168,85,247,0.5)]' },
-  { key: 'Won', label: 'Won', color: 'border-emerald-500/20 text-emerald-400 bg-emerald-500/10', badgeColor: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 backdrop-blur-md', topBorder: 'border-t-2 border-t-emerald-500 shadow-[0_-2px_10px_rgba(16,185,129,0.5)]' },
-  { key: 'Lost', label: 'Lost', color: 'border-slate-700/50 text-slate-400 bg-slate-800/50', badgeColor: 'bg-slate-800/50 text-slate-400 border border-slate-700/50 backdrop-blur-md', topBorder: 'border-t-2 border-t-slate-500' },
+const STAGES: { key: DealStage; label: string; color: string; badgeColor: string; topBorder: string; progressColor: string }[] = [
+  { key: 'New Lead', label: 'New Lead', color: 'text-[#00C3F0]', badgeColor: 'bg-[#00C3F0]/10 text-[#00C3F0] border border-[#00C3F0]/30', topBorder: 'border-t-[3px] border-t-[#00C3F0]', progressColor: 'bg-[#00C3F0]' },
+  { key: 'Contacted', label: 'Contacted', color: 'text-[#99AFFD]', badgeColor: 'bg-[#99AFFD]/15 text-[#99AFFD] border border-[#99AFFD]/30', topBorder: 'border-t-[3px] border-t-[#99AFFD]', progressColor: 'bg-[#99AFFD]' },
+  { key: 'Proposal Sent', label: 'Proposal Sent', color: 'text-[#5BD6F5]', badgeColor: 'bg-[#5BD6F5]/15 text-[#5BD6F5] border border-[#5BD6F5]/30', topBorder: 'border-t-[3px] border-t-[#5BD6F5]', progressColor: 'bg-[#5BD6F5]' },
+  { key: 'Won', label: 'Won', color: 'text-[#D20C54]', badgeColor: 'bg-[#D20C54]/15 text-[#D20C54] border border-[#D20C54]/30', topBorder: 'border-t-[3px] border-t-[#D20C54]', progressColor: 'bg-[#D20C54]' },
+  { key: 'Lost', label: 'Lost', color: 'text-[#545B6D] dark:text-[#969CAF]', badgeColor: 'bg-[#545B6D]/15 text-[#545B6D] dark:text-[#969CAF] border border-[#545B6D]/30', topBorder: 'border-t-[3px] border-t-[#545B6D]', progressColor: 'bg-[#545B6D]' },
 ];
 
 /**
@@ -51,6 +50,7 @@ const CATEGORIES = ['All', 'Software', 'Consulting', 'Support', 'Hardware', 'AMC
 /**
  * Interactive Lakhs & Crores Kanban Pipeline Board.
  * Supports drag-and-drop deal stage progression, filtering, editing, and WhatsApp follow-up generation.
+ * Styled per Bridgement Design System.
  *
  * @param {KanbanPipelineProps} props Component props.
  * @returns {React.ReactElement} Kanban board layout.
@@ -93,11 +93,6 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
     return matchesSearch && matchesCategory;
   });
 
-  /**
-   * Opens modal configured to add a new deal.
-   *
-   * @param {DealStage} initialStage Initial stage for the deal.
-   */
   const openAddModal = (initialStage: DealStage = 'New Lead') => {
     setEditingDeal(null);
     setFormData({
@@ -111,11 +106,6 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
     setIsFormOpen(true);
   };
 
-  /**
-   * Opens modal pre-populated with an existing deal's properties for editing.
-   *
-   * @param {Deal} deal Target deal object.
-   */
   const openEditModal = (deal: Deal) => {
     setEditingDeal(deal);
     setFormData({
@@ -129,11 +119,6 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
     setIsFormOpen(true);
   };
 
-  /**
-   * Handles deal create or update form submission.
-   *
-   * @param {React.FormEvent} e Form event.
-   */
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.client_name.trim()) return;
@@ -146,17 +131,11 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
     setIsFormOpen(false);
   };
 
-  /**
-   * Drag start event handler capturing deal ID.
-   */
   const handleDragStart = (e: React.DragEvent, id: string) => {
     e.dataTransfer.setData('text/plain', id);
     setDraggedDealId(id);
   };
 
-  /**
-   * Drag over event handler preventing browser default drop blocking.
-   */
   const handleDragOver = (e: React.DragEvent, targetStage: DealStage) => {
     e.preventDefault();
     if (dragOverStage !== targetStage) {
@@ -164,17 +143,11 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
     }
   };
 
-  /**
-   * Drag leave event handler.
-   */
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOverStage(null);
   };
 
-  /**
-   * Drop event handler updating deal stage to column target stage.
-   */
   const handleDrop = async (e: React.DragEvent, targetStage: DealStage) => {
     e.preventDefault();
     setDragOverStage(null);
@@ -189,55 +162,53 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
   const wonPipelineValue = deals.filter(d => d.stage === 'Won').reduce((acc, d) => acc + d.deal_value, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Top Controls & Metrics Bar */}
-      <div className="relative group bg-[#0a0f1c]/80 backdrop-blur-3xl rounded-[3rem] p-8 shadow-[0_8px_40px_rgb(0,0,0,0.5)] border border-indigo-500/20 flex flex-wrap justify-between items-center gap-6 transition-all duration-500 overflow-hidden hover:shadow-[0_8px_40px_rgb(79,70,229,0.15)]">
-        {/* Ambient Glow */}
-        <div className="absolute -top-20 -left-20 w-[400px] h-[400px] bg-indigo-500/15 blur-[120px] rounded-full pointer-events-none group-hover:scale-110 group-hover:bg-indigo-500/25 transition-all duration-1000" />
+      <div className="bg-[#FCFBF9] dark:bg-[#010844] border border-[#D6DAE3] dark:border-white/10 rounded-[12px] p-5 shadow-[0px_3.6px_14.4px_rgba(0,13,39,0.06)] flex flex-wrap justify-between items-center gap-4 transition-all">
         
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6 w-full lg:w-auto">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-5 w-full lg:w-auto">
           <div>
-            <h2 className="font-serif text-3xl font-black text-white flex items-center gap-4 tracking-tight drop-shadow-md">
-              <div className="p-3.5 bg-indigo-500/10 text-indigo-400 rounded-2xl shadow-inner border border-indigo-500/20 group-hover:scale-110 transition-transform duration-500 group-hover:shadow-[0_0_20px_rgba(79,70,229,0.4)]">
-                <Layers className="w-6 h-6 stroke-[3]" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-[7.2px] bg-[#D20C54]/10 dark:bg-[#D20C54]/20 flex items-center justify-center text-[#D20C54]">
+                <Layers className="w-4 h-4" />
               </div>
-              Lakhs & Crores Workflow
-            </h2>
-            <p className="text-[10px] font-black text-indigo-400 mt-2 ml-1 uppercase tracking-widest flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" /> Visual pipeline execution
+              <h2 className="font-display text-xl sm:text-2xl font-semibold tracking-tight text-[#545B6D] dark:text-white">
+                Sales Pipeline
+              </h2>
+            </div>
+            <p className="text-[12px] text-[#969CAF] dark:text-[#CBD5E1] mt-0.5">
+              Indian Rupee (Lakhs & Crores) deal flow execution
             </p>
           </div>
 
           {/* Metric Chips */}
-          <div className="flex gap-4 text-xs w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-            <div className="px-5 py-3.5 rounded-[1.5rem] bg-slate-900/60 border border-slate-700/50 shadow-inner flex flex-col gap-1.5 shrink-0 min-w-[160px] relative overflow-hidden group/metric hover:-translate-y-1 transition-transform backdrop-blur-sm">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover/metric:opacity-100 transition-opacity duration-300" />
-              <span className="relative z-10 text-[10px] uppercase font-black tracking-widest text-slate-400">Total Deals</span>
-              <div className="relative z-10 flex items-baseline gap-2">
-                <strong className="font-serif text-2xl font-black text-indigo-400 tracking-tight drop-shadow-md">{deals.length}</strong>
-                <span className="font-mono text-[11px] font-bold text-slate-500">({formatLakhsCrores(totalPipelineValue)})</span>
+          <div className="flex gap-3 text-xs w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            <div className="px-4 py-2 rounded-[7.2px] bg-[#EAF1FF] dark:bg-[#040B46] border border-[#D6DAE3] dark:border-white/10 flex flex-col min-w-[140px]">
+              <span className="text-[10px] uppercase font-semibold text-[#545B6D] dark:text-[#969CAF] tracking-wider">Total Pipeline</span>
+              <div className="flex items-baseline gap-1.5 mt-0.5">
+                <strong className="text-base font-semibold text-[#010844] dark:text-white">{deals.length}</strong>
+                <span className="text-xs font-medium text-[#00006E] dark:text-[#00C3F0]">({formatLakhsCrores(totalPipelineValue)})</span>
               </div>
             </div>
             
-            <div className="px-5 py-3.5 rounded-[1.5rem] bg-emerald-900/10 border border-emerald-500/20 shadow-inner flex flex-col gap-1.5 shrink-0 min-w-[160px] relative overflow-hidden group/metric hover:-translate-y-1 transition-transform backdrop-blur-sm hover:border-emerald-500/40">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover/metric:opacity-100 transition-opacity duration-300" />
-              <span className="relative z-10 text-[10px] uppercase font-black tracking-widest text-emerald-500">Won Revenue</span>
-              <strong className="relative z-10 font-serif text-2xl font-black text-emerald-400 tracking-tight drop-shadow-md">{formatLakhsCrores(wonPipelineValue)}</strong>
+            <div className="px-4 py-2 rounded-[7.2px] bg-[#D20C54]/10 dark:bg-[#D20C54]/20 border border-[#D20C54]/30 flex flex-col min-w-[140px]">
+              <span className="text-[10px] uppercase font-semibold text-[#D20C54] tracking-wider">Won Revenue</span>
+              <strong className="text-base font-semibold text-[#D20C54] mt-0.5">{formatLakhsCrores(wonPipelineValue)}</strong>
             </div>
           </div>
         </div>
 
         {/* Filters & Actions */}
-        <div className="relative z-10 flex flex-wrap sm:flex-nowrap items-center gap-4 w-full lg:w-auto">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full lg:w-auto">
           {/* Search */}
-          <div className="relative flex-1 sm:w-64">
-            <Search className="w-4 h-4 absolute left-4 top-3.5 text-slate-400 stroke-[3]" />
+          <div className="relative flex-1 sm:w-56">
+            <Search className="w-4 h-4 absolute left-3.5 top-3 text-[#969CAF]" />
             <input
               type="text"
               placeholder="Search clients..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 text-sm font-bold border border-slate-700/50 rounded-[1.5rem] bg-slate-900/60 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
+              className="w-full pl-9 pr-3 py-2 text-sm border border-[#D6DAE3] dark:border-white/15 rounded-[7.2px] bg-white dark:bg-[#040B46] text-[#545B6D] dark:text-[#FDF5F8] placeholder-[#969CAF] focus:outline-none focus:ring-2 focus:ring-[#00006E] dark:focus:ring-[#00C3F0] transition-all"
             />
           </div>
 
@@ -246,34 +217,28 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full sm:w-auto px-5 py-3 text-sm font-bold border border-slate-700/50 rounded-[1.5rem] bg-slate-900/60 text-white focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/20 cursor-pointer transition-all shadow-inner appearance-none pr-10 backdrop-blur-sm"
+              className="w-full sm:w-auto px-3.5 py-2 text-sm border border-[#D6DAE3] dark:border-white/15 rounded-[7.2px] bg-white dark:bg-[#040B46] text-[#545B6D] dark:text-[#FDF5F8] focus:outline-none focus:ring-2 focus:ring-[#00006E] dark:focus:ring-[#00C3F0] cursor-pointer"
             >
               {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat} className="bg-slate-900 text-white">
+                <option key={cat} value={cat}>
                   {cat === 'All' ? 'All Categories' : cat}
                 </option>
               ))}
             </select>
-            {/* Custom dropdown arrow */}
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
-              <svg className="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"></path></svg>
-            </div>
           </div>
 
           <button
             onClick={() => openAddModal('New Lead')}
-            className="w-full sm:w-auto px-6 py-3 text-xs font-black tracking-widest uppercase text-white bg-indigo-600 hover:bg-indigo-500 rounded-[1.5rem] transition-all hover:-translate-y-1 active:scale-95 shadow-[0_0_20px_rgba(79,70,229,0.4)] flex items-center justify-center gap-3 shrink-0 group/btn border border-indigo-400/50"
+            className="btn-primary"
           >
-            <div className="p-1 rounded-md bg-white/20 group-hover/btn:bg-white/30 transition-colors">
-              <Plus className="w-4 h-4 stroke-[3]" />
-            </div>
-            Add Deal
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <span>Add Deal</span>
           </button>
         </div>
       </div>
 
       {/* Kanban Board Columns */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
         {STAGES.map((column) => {
           const columnDeals = filteredDeals.filter((d) => d.stage === column.key);
           const columnTotal = columnDeals.reduce((sum, d) => sum + d.deal_value, 0);
@@ -284,53 +249,45 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
               onDragOver={(e) => handleDragOver(e, column.key)}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, column.key)}
-              className={`border rounded-[2.5rem] p-5 flex flex-col min-h-[600px] transition-all duration-300 shadow-inner backdrop-blur-xl ${
+              className={`border rounded-[12px] p-3.5 flex flex-col min-h-[580px] transition-all duration-200 ${column.topBorder} ${
                 dragOverStage === column.key
-                  ? 'bg-indigo-500/10 border-indigo-500/50 ring-2 ring-indigo-500/30'
-                  : 'bg-slate-900/40 border-slate-700/50'
+                  ? 'bg-[#EAF1FF] dark:bg-[#010844] border-[#00C3F0]'
+                  : 'bg-[#FCFBF9] dark:bg-[#010844]/60 border-[#D6DAE3] dark:border-white/10 shadow-[0px_3.6px_14.4px_rgba(0,13,39,0.04)]'
               }`}
             >
-              {/* Premium Column Header Pill */}
-              <div className={`flex justify-between items-center px-6 py-5 rounded-[2rem] mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-xl border border-white/5 ${column.badgeColor}`}>
+              {/* Column Header */}
+              <div className={`flex justify-between items-center px-3.5 py-2.5 rounded-[7.2px] mb-3.5 ${column.badgeColor}`}>
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h3 className="font-serif text-[15px] font-black tracking-widest uppercase drop-shadow-md">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-display text-[13px] font-semibold uppercase tracking-wider">
                       {column.label}
                     </h3>
-                    <span className="text-[10px] font-black px-3 py-1 rounded-xl bg-black/40 backdrop-blur-sm shadow-inner border border-white/10">
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-white/40 dark:bg-black/40">
                       {columnDeals.length}
                     </span>
                   </div>
-                  <div className="mt-2 flex flex-col gap-2 w-full">
-                    <div className="text-xs font-mono font-black opacity-90 drop-shadow-sm">
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="text-xs font-mono font-medium">
                       {formatLakhsCrores(columnTotal)}
-                    </div>
-                    {/* Pipeline Value Progress Bar */}
-                    <div className="w-full bg-black/40 rounded-full h-1.5 overflow-hidden mt-1 shadow-inner">
-                      <div 
-                        className={`h-full rounded-full ${column.key === 'Won' ? 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]' : column.key === 'Lost' ? 'bg-slate-500' : 'bg-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.8)]'} transition-all duration-1000`} 
-                        style={{ width: `${totalPipelineValue > 0 ? Math.round((columnTotal / totalPipelineValue) * 100) : 0}%` }}
-                      />
-                    </div>
+                    </span>
                   </div>
                 </div>
 
                 <button
                   onClick={() => openAddModal(column.key)}
-                  className="p-3 rounded-2xl bg-black/20 hover:bg-black/40 transition-all hover:scale-110 active:scale-95 shadow-inner border border-white/10"
+                  className="p-1.5 rounded-[5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all cursor-pointer"
                   title={`Add deal to ${column.label}`}
                 >
-                  <Plus className="w-5 h-5 stroke-[3]" />
+                  <Plus className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
 
-              <div className="flex-1 space-y-4 overflow-y-auto pr-1">
+              {/* Deal Cards Container */}
+              <div className="flex-1 space-y-3 overflow-y-auto pr-0.5">
                 {columnDeals.length === 0 ? (
-                  <div className="h-32 border-2 border-dashed border-slate-700/80 rounded-[1.5rem] flex flex-col items-center justify-center text-[10px] font-black uppercase tracking-widest text-slate-500 p-4 text-center gap-3">
-                    <div className="p-2.5 bg-slate-800/50 rounded-xl">
-                       <Layers className="w-5 h-5 opacity-40 stroke-[2.5]" />
-                    </div>
-                    Drag deals here
+                  <div className="h-28 border border-dashed border-[#D6DAE3] dark:border-white/15 rounded-[12px] flex flex-col items-center justify-center text-[11px] font-medium text-[#969CAF] p-3 text-center gap-2">
+                    <Layers className="w-5 h-5 opacity-40" />
+                    <span>Drop deals here</span>
                   </div>
                 ) : (
                   columnDeals.map((deal) => (
@@ -338,91 +295,81 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
                       key={deal.id}
                       draggable
                       onDragStart={(e) => handleDragStart(e, deal.id)}
-                      className="bg-slate-900/60 backdrop-blur-xl rounded-3xl p-0 border border-slate-700/50 hover:border-indigo-500/50 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(79,70,229,0.2)] transition-all duration-300 cursor-grab active:cursor-grabbing group relative overflow-hidden"
+                      className="bg-white dark:bg-[#040B46] rounded-[12px] border border-[#D6DAE3] dark:border-white/10 hover:shadow-[0px_3.6px_14.4px_rgba(0,13,39,0.1)] transition-all duration-200 cursor-grab active:cursor-grabbing group overflow-hidden"
                     >
-                      {/* Ambient card glow on hover */}
-                      <div className="absolute top-0 right-0 w-28 h-28 bg-indigo-500/15 rounded-full blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-
-                      {/* Top Accent Bar based on stage */}
-                      <div className={`h-1.5 w-full ${deal.stage === 'Won' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : deal.stage === 'Lost' ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]' : 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]'}`} />
-                      
-                      <div className="p-5 pb-4 relative z-10">
+                      <div className="p-4 pb-3">
                         {/* Deal Header & Value */}
-                        <div className="flex justify-between items-start mb-4 gap-3">
-                          <h4 className="font-sans font-black text-sm text-slate-100 group-hover:text-indigo-400 transition-colors leading-tight drop-shadow-md">
+                        <div className="flex justify-between items-start mb-2 gap-2">
+                          <h4 className="font-sans font-semibold text-[14px] text-[#010844] dark:text-[#FDF5F8] group-hover:text-[#D20C54] transition-colors leading-snug">
                             {deal.client_name}
                           </h4>
-                          <div className="text-right shrink-0">
-                            <span className="inline-block px-3 py-1.5 rounded-xl text-xs font-serif font-black text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 shadow-inner">
-                              {formatLakhsCrores(deal.deal_value)}
-                            </span>
-                          </div>
+                          <span className="inline-block px-2.5 py-1 rounded-[6px] text-xs font-semibold text-[#00006E] dark:text-[#00C3F0] bg-[#EAF1FF] dark:bg-[#00C3F0]/15 shrink-0">
+                            {formatLakhsCrores(deal.deal_value)}
+                          </span>
                         </div>
 
-                        <div className="flex justify-between items-center mb-5">
-                          <div className="text-[9px] font-mono font-black uppercase tracking-widest text-slate-500">
-                            Raw: {formatINR(deal.deal_value)}
-                          </div>
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-[11px] font-mono text-[#969CAF]">
+                            {formatINR(deal.deal_value)}
+                          </span>
                           {(deal.stage === 'New Lead' || deal.stage === 'Contacted') && leadPredictor.predict(deal) !== null && (
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-fuchsia-500/10 to-indigo-500/10 border border-fuchsia-500/20 shadow-inner backdrop-blur-sm" title="AI Product Recommendation">
-                              <Sparkles className="w-3.5 h-3.5 text-fuchsia-400 stroke-[3]" />
-                              <span className="text-[10px] font-black uppercase tracking-widest text-fuchsia-400">
-                                Pitch {leadPredictor.predict(deal)}
-                              </span>
+                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[#D20C54]/10 text-[#D20C54] text-[10px] font-medium" title="AI Product Pitch">
+                              <Sparkles className="w-3 h-3" />
+                              <span>Pitch {leadPredictor.predict(deal)}</span>
                             </div>
                           )}
                         </div>
 
                         {/* Category & Close Date Chips */}
-                        <div className="flex flex-wrap gap-2 items-center text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3">
-                          <span className="px-2.5 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-slate-300 flex items-center gap-2 shadow-inner">
-                            <Tag className="w-3.5 h-3.5 text-indigo-400 stroke-[3]" />
+                        <div className="flex flex-wrap gap-1.5 items-center text-[10px] text-[#545B6D] dark:text-[#969CAF]">
+                          <span className="px-2 py-0.5 rounded-[4px] bg-[#FCFBF9] dark:bg-white/5 border border-[#D6DAE3] dark:border-white/10 flex items-center gap-1">
+                            <Tag className="w-3 h-3 text-[#00C3F0]" />
                             {deal.product_category}
                           </span>
                           {deal.close_date && (
-                            <span className="px-2.5 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-slate-300 flex items-center gap-2 shadow-inner">
-                              <Calendar className="w-3.5 h-3.5 text-orange-400 stroke-[3]" />
+                            <span className="px-2 py-0.5 rounded-[4px] bg-[#FCFBF9] dark:bg-white/5 border border-[#D6DAE3] dark:border-white/10 flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-[#D20C54]" />
                               {deal.close_date}
                             </span>
                           )}
                         </div>
                       </div>
 
-                      {/* Unified Elegant Bottom Action Bar */}
-                      <div className="relative z-10 flex items-center justify-between gap-2 px-5 py-3 bg-[#0a0f1c]/80 backdrop-blur-md border-t border-slate-700/50">
+                      {/* Card Action Bar */}
+                      <div className="flex items-center justify-between gap-1 px-3.5 py-2 bg-[#FCFBF9] dark:bg-[#010844]/80 border-t border-[#D6DAE3] dark:border-white/10">
                         <select
                           value={deal.stage}
                           onChange={(e) => onUpdateDeal(deal.id, { stage: e.target.value as DealStage })}
-                          className="text-[10px] font-black uppercase tracking-widest py-1.5 px-3 border border-slate-600/80 rounded-xl bg-slate-900/80 text-slate-300 cursor-pointer focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner"
+                          className="text-[11px] py-1 px-2 border border-[#D6DAE3] dark:border-white/15 rounded-[5px] bg-white dark:bg-[#040B46] text-[#545B6D] dark:text-[#FDF5F8] cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#00006E]"
                         >
                           {STAGES.map((s) => (
                             <option key={s.key} value={s.key}>
-                              Move: {s.label}
+                              {s.label}
                             </option>
                           ))}
                         </select>
 
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1">
                           <button
                             onClick={() => setActiveWhatsAppDeal(deal)}
-                            className="p-2 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 rounded-xl transition-all hover:scale-110 active:scale-95"
+                            className="p-1.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-[5px] transition-all"
                             title="Generate WhatsApp Follow-up (AI)"
                           >
-                            <MessageSquare className="w-4 h-4 stroke-[2.5]" />
+                            <MessageSquare className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => openEditModal(deal)}
-                            className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/20 rounded-xl transition-all hover:scale-110 active:scale-95"
+                            className="p-1.5 text-[#545B6D] dark:text-[#969CAF] hover:text-[#00006E] dark:hover:text-[#00C3F0] rounded-[5px] transition-all"
                             title="Edit deal"
                           >
-                            <Edit2 className="w-4 h-4 stroke-[2.5]" />
+                            <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => onDeleteDeal(deal.id)}
-                            className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 rounded-xl transition-all hover:scale-110 active:scale-95"
+                            className="p-1.5 text-[#545B6D] dark:text-[#969CAF] hover:text-rose-500 rounded-[5px] transition-all"
                             title="Delete deal"
                           >
-                            <Trash2 className="w-4 h-4 stroke-[2.5]" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>
@@ -445,7 +392,7 @@ export const KanbanPipeline: React.FC<KanbanPipelineProps> = ({
         stages={STAGES}
       />
 
-      {/* Feature 2: WhatsApp Modal */}
+      {/* WhatsApp Modal */}
       <WhatsAppModal
         deal={activeWhatsAppDeal}
         isOpen={!!activeWhatsAppDeal}

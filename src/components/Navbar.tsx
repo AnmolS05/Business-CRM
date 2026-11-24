@@ -32,6 +32,7 @@ interface NavbarProps {
 
 /**
  * Navigation bar header providing branding, KPI overview metrics, database reset, and tab selection.
+ * Styled to Bridgement design specifications (Deep Navy #010844 + Magenta #D20C54 + Cyan #00C3F0).
  *
  * @param {NavbarProps} props Component properties.
  * @returns {React.ReactElement} Header navigation layout.
@@ -46,112 +47,115 @@ export const Navbar: React.FC<NavbarProps> = ({
   toggleDarkMode,
 }) => {
   const getTabClass = (tabId: string) => {
-    const baseClass = "px-6 py-3 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all duration-500 flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto ";
+    const baseClass = "h-[38px] sm:h-[43.2px] px-3 sm:px-4 rounded-[7.2px] text-[13px] sm:text-[14px] font-medium transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer ";
     if (activeTab === tabId) {
-      return baseClass + "bg-indigo-600 text-white shadow-[0_0_25px_rgba(79,70,229,0.5)] border border-indigo-400/50 scale-105 z-10 relative";
+      return baseClass + "bg-[#D20C54] text-white shadow-sm";
     }
-    return baseClass + "text-slate-400 hover:text-indigo-300 hover:bg-slate-800/80 border border-transparent hover:scale-[1.02] active:scale-95";
+    return baseClass + "text-[#EAF1FF]/80 hover:text-white hover:bg-white/10 active:scale-95";
   };
 
   return (
-    <div className="sticky top-4 z-40 w-full px-4 sm:px-6 lg:px-8 transition-all duration-300">
-      <header className="mx-auto max-w-7xl bg-[#0a0f1c]/80 backdrop-blur-3xl border border-indigo-500/20 rounded-[3rem] shadow-[0_8px_40px_rgb(0,0,0,0.5)] overflow-hidden relative group/nav">
-        {/* Decorative Glow */}
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-transparent to-purple-500/10 pointer-events-none" />
+    <div className="sticky top-2 z-40 w-full transition-all duration-200 py-1">
+      <header className="w-full bg-[#010844] border border-white/10 rounded-[12px] shadow-[0px_3.6px_14.4px_rgba(0,13,39,0.15)] overflow-hidden relative text-white">
         
-        <div className="relative px-8 py-5 flex flex-col lg:flex-row justify-between items-center gap-6 z-10">
+        <div className="px-4 sm:px-6 py-3.5 flex flex-col md:flex-row justify-between items-center gap-4 relative z-10">
           
           {/* Logo & Branding */}
-          <div className="flex items-center gap-5 cursor-pointer group">
-            <div className="w-14 h-14 bg-indigo-500/10 rounded-2xl shadow-inner border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-black group-hover:scale-110 group-hover:rotate-6 group-hover:bg-indigo-500/20 transition-all duration-500 ease-out">
-              <IndianRupee className="w-7 h-7 stroke-[3]" />
+          <div className="flex items-center gap-3.5 cursor-pointer">
+            <div className="w-10 h-10 bg-[#D20C54] rounded-[7.2px] flex items-center justify-center text-white font-bold shadow-sm">
+              <IndianRupee className="w-5 h-5 stroke-[2.5]" />
             </div>
-            <div className="hidden sm:block">
-              <div className="flex items-center gap-3 mb-1">
-                <h1 className="font-serif text-3xl font-black tracking-tight text-white drop-shadow-md">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="font-display text-xl sm:text-2xl font-semibold tracking-tight text-white">
                   CapitalFlow
                 </h1>
-                <span className="relative flex h-5 w-auto items-center justify-center">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-xl px-2.5 py-1 text-[9px] font-black uppercase tracking-widest bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 shadow-sm">
-                    Pro
-                  </span>
+                <span className="inline-flex rounded-[4px] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-[#00C3F0] text-[#010844]">
+                  Pro
+                </span>
+                <span className="inline-flex rounded-[4px] px-1.5 py-0.5 text-[10px] font-mono font-medium text-[#99AFFD] bg-white/10 border border-white/10">
+                  v2.0
                 </span>
               </div>
-              <p className="text-[10px] font-black text-indigo-500 flex items-center gap-2 uppercase tracking-widest">
-                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse" />
-                AI Powered Intelligence
+              <p className="text-[11px] text-[#99AFFD] font-normal tracking-tight">
+                Indian Enterprise CRM & AI Advisor
               </p>
             </div>
           </div>
 
-          {/* Premium Dock Navigation */}
-          <div className="flex justify-center flex-1 w-full sm:w-auto">
-            <div className="inline-flex space-x-2 p-2 bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-[2rem] shadow-inner scrollbar-none w-full sm:w-auto overflow-x-auto relative">
+          {/* Bridgement Pill Navigation Dock */}
+          <div className="flex justify-center flex-1 w-full md:w-auto">
+            <nav className="inline-flex space-x-1.5 p-1 bg-[#040B46] border border-white/10 rounded-[9px] w-full sm:w-auto overflow-x-auto">
               <button
                 onClick={() => setActiveTab('kanban')}
                 className={getTabClass('kanban')}
               >
-                <Layers className="w-5 h-5 stroke-[2.5]" />
-                <span className="hidden lg:inline">Pipeline</span>
+                <Layers className="w-4 h-4" />
+                <span>Pipeline</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('expenses')}
                 className={getTabClass('expenses')}
               >
-                <Receipt className="w-5 h-5 stroke-[2.5]" />
-                <span className="hidden lg:inline">Ledger</span>
+                <Receipt className="w-4 h-4" />
+                <span>Ledger</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('analytics')}
                 className={getTabClass('analytics')}
               >
-                <BarChart3 className="w-5 h-5 stroke-[2.5]" />
-                <span className="hidden lg:inline">Stats & AI</span>
+                <BarChart3 className="w-4 h-4" />
+                <span>Analytics & AI</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('docs')}
                 className={getTabClass('docs')}
               >
-                <FileSpreadsheet className="w-5 h-5 stroke-[2.5]" />
-                <span className="hidden lg:inline">Parser</span>
+                <FileSpreadsheet className="w-4 h-4" />
+                <span>Doc Parser</span>
               </button>
-            </div>
+            </nav>
           </div>
 
-          {/* Quick Metrics & Reset */}
-          <div className="hidden lg:flex items-center gap-4">
-            <div className="relative group/stat text-right text-xs pr-6 border-r border-indigo-500/20 cursor-default">
-              <span className="text-slate-500 block text-[9px] font-black uppercase tracking-widest mb-1 transition-colors group-hover/stat:text-indigo-400">Active Deals</span>
-              <strong className="font-serif text-white font-black text-xl transition-colors drop-shadow-md">
-                {totalDealsCount}
-              </strong>
-              
-              {/* Premium Hover Tooltip */}
-              <div className="absolute top-[120%] right-6 w-56 bg-slate-900/90 backdrop-blur-xl text-white p-5 rounded-3xl shadow-[0_8px_40px_rgb(0,0,0,0.5)] opacity-0 group-hover/stat:opacity-100 transition-opacity duration-300 pointer-events-none z-50 border border-slate-700/80">
-                <div className="absolute -top-2 right-8 w-4 h-4 bg-slate-900/90 rotate-45 border-t border-l border-slate-700/80" />
-                <div className="relative z-10 text-left">
-                  <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Net Profit</span>
-                  <span className={`font-mono text-xl font-black drop-shadow-md ${netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    ₹{(netProfit / 100000).toFixed(2)}L
-                  </span>
-                </div>
-              </div>
+          {/* Quick Metrics, Theme Toggle & Reset */}
+          <div className="flex items-center gap-3 self-end md:self-center">
+            {/* Net Profit Pill */}
+            <div className="hidden sm:flex flex-col text-right px-3 py-1 bg-[#040B46] border border-white/10 rounded-[7.2px]">
+              <span className="text-[10px] text-[#969CAF] uppercase font-medium tracking-wider">Net Profit</span>
+              <span className={`font-mono text-sm font-semibold ${netProfit >= 0 ? 'text-[#00C3F0]' : 'text-[#ff547e]'}`}>
+                ₹{(netProfit / 100000).toFixed(2)}L
+              </span>
             </div>
 
+            {/* Active Deals Badge */}
+            <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-[#040B46] border border-white/10 rounded-[7.2px] text-xs">
+              <span className="text-[#969CAF]">Deals:</span>
+              <strong className="text-white font-semibold">{totalDealsCount}</strong>
+            </div>
+
+            {/* Dark / Light Mode Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 text-[#EAF1FF]/80 hover:text-white bg-[#040B46] hover:bg-white/10 border border-white/10 rounded-[7.2px] transition-all cursor-pointer"
+              title={isDarkMode ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Reset Database Button */}
             <button
               onClick={() => {
                 if (window.confirm('Reset database to default sample Indian business deals & expenses?')) {
                   onResetDb();
                 }
               }}
-              className="p-4 text-slate-400 hover:text-rose-400 bg-slate-900/50 hover:bg-slate-800 border border-slate-700/60 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95 shadow-inner"
+              className="p-2 text-[#EAF1FF]/80 hover:text-[#ff547e] bg-[#040B46] hover:bg-rose-500/10 border border-white/10 rounded-[7.2px] transition-all cursor-pointer"
               title="Reset Sample Data"
             >
-              <RotateCcw className="w-6 h-6 stroke-[2.5]" />
+              <RotateCcw className="w-4 h-4" />
             </button>
           </div>
         </div>

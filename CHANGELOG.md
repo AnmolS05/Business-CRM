@@ -1,5 +1,74 @@
 # CHANGELOG
 
+## [v2.0.0 - 2026-11-24T10:55:00+05:30] Release v2.0 - Bridgement Design System & Enterprise UI
+
+### Description
+- Official release of **CapitalFlow Pro v2.0.0** featuring the full Bridgement-inspired enterprise design system.
+- Bumped package version to `2.0.0` and integrated `v2.0` badge into the application navbar and project documentation.
+- Integrated comprehensive Bridgement brand tokens: Deep Navy `#010844`, Signature Magenta `#D20C54`, Cyan `#00C3F0`, Periwinkle `#99AFFD`, and Canvas `#FCFBF9`.
+- Applied typography standards with `Plus Jakarta Sans`, `Outfit`, and `Inter` and precision hairline borders (`#D6DAE3` / `rgba(255,255,255,0.1)`).
+- Re-architected `DocumentParser` section layout to ensure seamless vertical flow from Part 1 text analysis directly into Part 2 interactive Recharts comparisons.
+- Ready for live Vercel edge deployment and Git repository synchronization.
+
+### Files Affected
+- `package.json`
+- `src/components/Navbar.tsx`
+- `README.md`
+- `CHANGELOG.md`
+
+## [2026-11-24T10:48:00+05:30] Fixed DocumentParser Part 1 and Part 2 Layout Ordering
+
+### Description
+- Resolved design layout issue in `DocumentParser` where the dynamic comparison chart was incorrectly positioned above Part 1, leaving Part 2 empty.
+- Enhanced `parseResponse` logic to systematically detect and separate:
+  - `part1Text`: The full structured written markdown analysis (Executive Overview, Key Highlights, Trends).
+  - `part2Header`: Dynamic Part 2 section title extracted from the AI response.
+  - `part2Body`: Any supplementary descriptive or explanatory notes accompanying the comparative figures.
+  - `parsedChart`: Clean JSON dataset payload for Recharts visualization.
+- Restructured the DOM sequence within the analysis results container: Part 1 (Written Markdown Analysis) is rendered first, followed directly by Part 2 (Dynamic Interactive Recharts Visual Comparison Card), eliminating any trailing empty headings.
+- Verified TypeScript typing with zero errors (`npm run lint`) and production build compilation (`npm run build`).
+
+### Files Affected
+- `src/components/DocumentParser.tsx`
+- `CHANGELOG.md`
+
+## [2026-11-24T10:05:00+05:30] Implemented Bridgement-Inspired Design System
+
+### Description
+- Transitioned the application UI to the comprehensive Bridgement-inspired design system documented in `design.md`.
+- Implemented core color tokens:
+  - Primary Brand CTA & Accent: `#D20C54` (Hover: `#ff3264`, Active: `#ff547e`)
+  - Secondary Action & Accent: `#00C3F0` (Hover: `#81e2f9`, Contrast text: `#010844`)
+  - Dark Surface / Header / Hero: `#010844`
+  - Canvas Background: `#FCFBF9` (Light) / `#05081E` (Dark)
+  - Ink Headings: `#545B6D` (Light) / `#FDF5F8` (Dark) with `-0.03em` tracking
+  - Body Text: `#969CAF` (Light) / `#CBD5E1` (Dark)
+  - Borders: Hairline `#D6DAE3` (Light) / `rgba(255,255,255,0.1)` (Dark)
+  - Component Radii: `7.2px` (buttons, inputs) and `12px` (cards, modals)
+- Integrated Google Fonts: `Plus Jakarta Sans`, `Outfit`, and `Inter`.
+- Added standard utility classes `.btn-primary`, `.btn-secondary`, `.btn-ghost`, and `.card-surface`.
+- Refactored `src/App.tsx`, `Navbar.tsx`, `KanbanPipeline.tsx`, `DealFormModal.tsx`, `ExpenseTracker.tsx`, `ExpenseForm.tsx`, `LeadScoringPredictor.tsx`, `BusinessAdvisorCard.tsx`, `StatisticsDashboard.tsx`, `DocumentParser.tsx`, `UploadDropzone.tsx`, and `WhatsAppModal.tsx`.
+- Updated Recharts palettes across Area, Bar, and Composed charts to match Bridgement tokens with custom dark navy tooltips.
+- Verified TypeScript typing with zero errors (`npm run lint`), successful dual client/serverless production build (`npm run build`), and validated local server execution.
+
+### Files Affected
+- `index.html`
+- `src/index.css`
+- `src/App.tsx`
+- `src/components/Navbar.tsx`
+- `src/components/KanbanPipeline.tsx`
+- `src/components/DealFormModal.tsx`
+- `src/components/ExpenseTracker.tsx`
+- `src/components/ExpenseForm.tsx`
+- `src/components/LeadScoringPredictor.tsx`
+- `src/components/BusinessAdvisorCard.tsx`
+- `src/components/StatisticsDashboard.tsx`
+- `src/components/DocumentParser.tsx`
+- `src/components/UploadDropzone.tsx`
+- `src/components/WhatsAppModal.tsx`
+- `README.md`
+- `CHANGELOG.md`
+
 ## [2026-11-24T09:23:00+05:30] Optimized Vercel Serverless Function Bundling
 
 ### Description

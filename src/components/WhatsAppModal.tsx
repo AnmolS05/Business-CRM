@@ -92,132 +92,128 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({ deal, isOpen, onCl
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto">
-      <div className="absolute inset-0 bg-[#0a0f1c]/80 backdrop-blur-3xl transition-opacity duration-300" onClick={onClose} />
+      <div className="absolute inset-0 bg-[#010844]/80 backdrop-blur-md transition-opacity duration-300" onClick={onClose} />
       
-      <div className="relative bg-slate-900/60 rounded-[3rem] shadow-[0_8px_40px_rgb(0,0,0,0.5)] max-w-lg w-full overflow-hidden transition-all animate-in fade-in zoom-in-95 duration-300 border border-emerald-500/20 backdrop-blur-3xl">
-        {/* WhatsApp Brand Glow */}
-        <div className="absolute -top-20 -right-20 w-80 h-80 bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none" />
-
+      <div className="relative bg-white dark:bg-[#010844] rounded-[12px] shadow-2xl max-w-lg w-full overflow-hidden transition-all animate-in fade-in zoom-in-95 duration-200 border border-[#D6DAE3] dark:border-white/10">
         {/* Header */}
-        <div className="bg-emerald-500/5 px-10 py-8 border-b border-emerald-500/20 flex justify-between items-center relative z-10">
-          <div className="flex items-center gap-6">
-            <div className="p-4 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner">
-              <MessageSquare className="w-8 h-8 stroke-[2.5]" />
+        <div className="bg-[#FCFBF9] dark:bg-[#05081E]/80 px-6 py-5 border-b border-[#D6DAE3] dark:border-white/10 flex justify-between items-center">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-[7.2px] bg-[#00C3F0]/10 dark:bg-[#00C3F0]/20 text-[#00C3F0] flex items-center justify-center border border-[#00C3F0]/20">
+              <MessageSquare className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <h3 className="font-serif font-black text-3xl text-white tracking-tight drop-shadow-md">WhatsApp Follow-up</h3>
-              <p className="text-[10px] font-black text-emerald-400 flex items-center gap-2 mt-2 uppercase tracking-widest">
-                <Sparkles className="w-3.5 h-3.5" />
+              <h3 className="font-heading font-bold text-xl text-[#545B6D] dark:text-[#FDF5F8] tracking-[-0.03em]">WhatsApp Follow-up</h3>
+              <p className="text-[10px] font-bold text-[#00C3F0] flex items-center gap-1.5 mt-0.5 uppercase tracking-wider">
+                <Sparkles className="w-3 h-3" />
                 Powered by Gemini 2.5 Flash
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-rose-500/20 transition-all hover:scale-110 active:scale-95 border border-transparent hover:border-rose-500/30"
+            className="p-1.5 rounded-[7.2px] text-[#969CAF] hover:text-[#545B6D] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-10 space-y-8 relative z-10">
+        <div className="p-6 space-y-5">
           {/* Deal Metadata Banner */}
-          <div className="bg-slate-800/50 border border-slate-700/80 rounded-2xl p-6 flex justify-between items-center shadow-inner group hover:border-emerald-500/30 transition-colors">
+          <div className="bg-[#FCFBF9] dark:bg-[#05081E]/60 border border-[#D6DAE3]/80 dark:border-white/10 rounded-[7.2px] p-4 flex justify-between items-center shadow-inner">
             <div>
-              <span className="font-serif font-black text-2xl block text-white mb-2 tracking-tight">{deal.client_name}</span>
-              <span className="text-slate-400 font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
+              <span className="font-heading font-bold text-lg block text-[#545B6D] dark:text-[#FDF5F8] tracking-[-0.03em]">{deal.client_name}</span>
+              <span className="text-[#969CAF] font-semibold text-xs uppercase tracking-wider flex items-center gap-2 mt-0.5">
                 {deal.product_category}
-                <span className="w-1 h-1 rounded-full bg-slate-600" />
-                <span className="text-emerald-400">{deal.stage}</span>
+                <span className="w-1 h-1 rounded-full bg-[#D6DAE3] dark:bg-white/20" />
+                <span className="text-[#00C3F0]">{deal.stage}</span>
               </span>
             </div>
             <div className="text-right">
-              <span className="font-mono font-bold text-xl block text-white drop-shadow-md">
+              <span className="font-mono font-bold text-base block text-[#545B6D] dark:text-[#FDF5F8]">
                 {formatIndianFullWithCompact(deal.deal_value)}
               </span>
             </div>
           </div>
 
           {/* Phone input */}
-          <div className="relative group/input">
+          <div>
+            <label className="block text-xs font-bold text-[#545B6D] dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
+              WhatsApp Number
+            </label>
             <input
               type="text"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
-              className="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl px-5 py-4 pt-6 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-white shadow-inner transition-all group-hover/input:border-slate-600 placeholder-transparent peer"
-              placeholder="WhatsApp Number"
+              className="w-full bg-white dark:bg-[#05081E] border border-[#D6DAE3] dark:border-white/15 rounded-[7.2px] px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#D20C54]/20 focus:border-[#D20C54] outline-none text-[#545B6D] dark:text-[#FDF5F8] shadow-inner transition-colors"
+              placeholder="+91 9876543210"
             />
-            <label className="absolute top-2 left-5 text-[10px] font-black text-emerald-500 uppercase tracking-widest pointer-events-none transition-all peer-placeholder-shown:text-slate-500 peer-focus:text-emerald-500">
-              WhatsApp Number
-            </label>
           </div>
 
           {/* Draft text section */}
           <div>
-            <div className="flex justify-between items-center mb-4 pl-1">
-              <label className="text-[10px] font-black text-emerald-500 flex items-center gap-2 uppercase tracking-widest">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="text-xs font-bold text-[#545B6D] dark:text-[#CBD5E1] uppercase tracking-wider flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-[#D20C54] rounded-full animate-pulse" />
                 AI Generated Message
               </label>
               <button
                 onClick={() => generateFollowUp(deal)}
                 disabled={loading}
-                className="text-[10px] font-black text-slate-400 hover:text-emerald-400 transition-colors uppercase tracking-widest bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/80 hover:border-emerald-500/30"
+                className="text-[10px] font-bold text-[#00006E] dark:text-[#00C3F0] hover:underline uppercase tracking-wider"
               >
                 Regenerate
               </button>
             </div>
 
             {loading ? (
-              <div className="min-h-[200px] bg-slate-800/50 border border-slate-700/80 rounded-2xl p-6 flex flex-col items-center justify-center gap-6 shadow-inner">
+              <div className="min-h-[160px] bg-[#FCFBF9] dark:bg-[#05081E]/60 border border-[#D6DAE3] dark:border-white/10 rounded-[7.2px] p-6 flex flex-col items-center justify-center gap-3">
                 <div className="relative">
-                  <div className="w-14 h-14 border-4 border-emerald-900 rounded-full"></div>
-                  <div className="w-14 h-14 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                  <div className="w-10 h-10 border-2 border-[#EAF1FF] dark:border-white/10 rounded-full" />
+                  <div className="w-10 h-10 border-2 border-[#D20C54] border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
                 </div>
-                <p className="text-[10px] font-black text-emerald-500/70 animate-pulse uppercase tracking-widest">Drafting personalized message...</p>
+                <p className="text-xs font-semibold text-[#969CAF] animate-pulse">Drafting personalized follow-up message...</p>
               </div>
             ) : error ? (
-              <div className="p-6 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-2xl text-sm font-black flex items-center gap-4 shadow-inner">
-                <X className="w-6 h-6 shrink-0 stroke-[3]" />
+              <div className="p-4 bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40 rounded-[7.2px] text-xs font-semibold flex items-center gap-2">
+                <X className="w-4 h-4 shrink-0" />
                 {error}
               </div>
             ) : (
               <textarea
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                rows={6}
-                className="w-full p-6 text-sm leading-relaxed border border-slate-700/80 rounded-2xl bg-slate-800/80 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50 outline-none resize-none shadow-inner transition-all hover:border-slate-600"
+                rows={5}
+                className="w-full p-3.5 text-sm leading-relaxed border border-[#D6DAE3] dark:border-white/15 rounded-[7.2px] bg-white dark:bg-[#05081E] text-[#545B6D] dark:text-[#FDF5F8] focus:border-[#D20C54] focus:ring-2 focus:ring-[#D20C54]/20 outline-none resize-none shadow-inner transition-colors"
               />
             )}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-10 py-6 bg-slate-900/80 border-t border-emerald-500/20 flex flex-wrap-reverse sm:flex-nowrap justify-between items-center gap-5 relative z-10">
+        <div className="px-6 py-4 bg-[#FCFBF9] dark:bg-[#05081E]/80 border-t border-[#D6DAE3] dark:border-white/10 flex flex-wrap justify-between items-center gap-3">
           <button
             onClick={handleCopy}
             disabled={!draft || loading}
-            className="w-full sm:w-auto px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-300 bg-slate-800 border border-slate-700 rounded-xl hover:bg-slate-700 transition-all flex justify-center items-center gap-3 shadow-sm active:scale-95 disabled:opacity-50 hover:border-slate-600"
+            className="btn-secondary h-[40px] px-3.5 text-xs inline-flex items-center gap-2"
           >
-            {copied ? <Check className="w-5 h-5 text-emerald-400 stroke-[3]" /> : <Copy className="w-5 h-5 stroke-[2.5]" />}
+            {copied ? <Check className="w-4 h-4 text-[#010844]" /> : <Copy className="w-4 h-4" />}
             {copied ? 'Copied' : 'Copy Text'}
           </button>
 
-          <div className="flex w-full sm:w-auto items-center gap-4">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={onClose}
-              className="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors hidden sm:block"
+              className="btn-ghost h-[40px] px-3 text-xs"
             >
               Cancel
             </button>
             <button
               onClick={handleSendWhatsApp}
               disabled={!draft || loading}
-              className="w-full sm:w-auto px-8 py-4 text-[13px] font-black uppercase tracking-widest text-white bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 rounded-xl transition-all shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_8px_30px_rgba(16,185,129,0.4)] active:scale-95 flex justify-center items-center gap-3 border border-emerald-400/20"
+              className="btn-primary h-[40px] px-4 text-xs inline-flex items-center gap-2"
             >
-              <Send className="w-5 h-5 stroke-[2.5]" />
+              <Send className="w-4 h-4" />
               Send via WhatsApp
             </button>
           </div>

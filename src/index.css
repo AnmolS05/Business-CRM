@@ -2,24 +2,66 @@
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --color-brand-primary: #D20C54;
+  --color-brand-primary-hover: #ff3264;
+  --color-brand-primary-active: #ff547e;
+  --color-brand-surface-alt: #010844;
+  --color-brand-canvas: #FCFBF9;
+  --color-brand-ink: #545B6D;
+  --color-brand-body: #969CAF;
+  --color-brand-muted: #EAF1FF;
+  --color-brand-hairline: #D6DAE3;
+  --color-brand-cyan: #00C3F0;
+  --color-brand-cyan-hover: #81e2f9;
+  --color-brand-blue: #00006E;
+  --color-brand-royal: #172597;
+  --color-brand-sky: #5BD6F5;
+  --color-brand-periwinkle: #99AFFD;
+  
+  --animate-scan: scan 3s ease-in-out infinite;
+  
+  @keyframes scan {
+    0%, 100% {
+      transform: translateY(-10px);
+    }
+    50% {
+      transform: translateY(350px);
+    }
+  }
+}
+
 @layer base {
   button:not(:disabled) {
     @apply active:scale-95 transition-transform;
   }
   input, select, textarea {
-    @apply focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-blue-500/10 transition-all duration-300;
+    @apply focus:ring-2 focus:ring-[#00006E] dark:focus:ring-[#00C3F0] transition-all duration-200;
   }
 }
 
 @layer utilities {
-  .font-serif {
-    font-family: 'Outfit', sans-serif;
+  .font-display {
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.03em;
   }
   .font-sans {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
   .glass-panel {
-    @apply bg-white/80 dark:bg-slate-900/60 backdrop-blur-2xl border border-gray-200/80 dark:border-slate-700/50 shadow-xl dark:shadow-indigo-900/10;
+    @apply bg-[#FCFBF9]/90 dark:bg-[#010844]/80 backdrop-blur-2xl border border-[#D6DAE3] dark:border-white/10 shadow-[0px_3.6px_14.4px_rgba(0,13,39,0.06)];
+  }
+  .btn-primary {
+    @apply bg-[#D20C54] hover:bg-[#ff3264] text-white font-medium text-[14px] h-[43.2px] px-[18px] rounded-[7.2px] transition-all duration-200 active:scale-95 inline-flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-secondary {
+    @apply bg-[#00C3F0] hover:bg-[#81e2f9] text-[#010844] font-semibold text-[14px] h-[43.2px] px-[18px] rounded-[7.2px] transition-all duration-200 active:scale-95 inline-flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-ghost {
+    @apply border border-[#D6DAE3] dark:border-white/15 text-[#545B6D] dark:text-[#EAF1FF] hover:bg-[#99AFFD]/15 font-medium text-[14px] h-[43.2px] px-[18px] rounded-[7.2px] transition-all duration-200 active:scale-95 inline-flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .card-surface {
+    @apply bg-[#FCFBF9] dark:bg-[#010844]/70 border border-[#D6DAE3] dark:border-white/10 rounded-[12px] p-5 transition-all duration-200 hover:shadow-[0px_3.6px_14.4px_rgba(0,13,39,0.08)];
   }
 }
 
@@ -32,7 +74,7 @@ html.dark {
 }
 
 body {
-  @apply bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 relative min-h-screen;
+  @apply bg-[#FCFBF9] text-[#545B6D] dark:bg-[#05081E] dark:text-[#FDF5F8] transition-colors duration-300 relative min-h-screen font-sans;
 }
 
 body::before {
@@ -41,41 +83,33 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: -1;
-  background-image: radial-gradient(circle at 2px 2px, rgba(148, 163, 184, 0.15) 1px, transparent 0);
+  background-image: radial-gradient(circle at 2px 2px, rgba(84, 91, 109, 0.08) 1px, transparent 0);
   background-size: 32px 32px;
 }
 
 html.dark body::before {
-  background-image: radial-gradient(circle at 2px 2px, rgba(148, 163, 184, 0.05) 1px, transparent 0);
+  background-image: radial-gradient(circle at 2px 2px, rgba(153, 175, 253, 0.04) 1px, transparent 0);
 }
 
-/* Custom premium scrollbar */
+/* Custom refined scrollbar matching Bridgement */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300/80 dark:bg-slate-700/80 rounded-full border-2 border-transparent bg-clip-padding;
+  background: rgba(84, 91, 109, 0.2);
+  border-radius: 9999px;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(153, 175, 253, 0.2);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400 dark:bg-slate-500 border-2 border-transparent bg-clip-padding;
-}
-
-@theme {
-  --animate-scan: scan 3s ease-in-out infinite;
-  
-  @keyframes scan {
-    0%, 100% {
-      transform: translateY(-10px);
-    }
-    50% {
-      transform: translateY(350px);
-    }
-  }
+  background: rgba(210, 12, 84, 0.5);
 }

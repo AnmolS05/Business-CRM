@@ -1,4 +1,4 @@
-# 💼 CapitalFlow Pro
+# 💼 CapitalFlow Pro `v2.0`
 
 > **Enterprise Indian Business CRM and AI-Powered Financial Advisor**
 
@@ -19,7 +19,7 @@ CapitalFlow Pro is a state-of-the-art business management and financial tracking
 - **Ledger & Expense Tracker:** Comprehensive financial tracking covering operational costs, payroll, SaaS subscriptions, and incidental expenses.
 - **Analytics & AI Dashboard:** Visualize complex data through dynamic, real-time charts (Recharts) alongside on-demand, contextual business recommendations from Gemini.
 - **Document Parser:** Direct file upload system connected to Gemini 2.5 Flash Lite for rapid invoice processing and document summarization.
-- **Premium UI/UX:** A stunning, glassmorphism-inspired interface featuring micro-animations and robust dark mode support, built with TailwindCSS v4 and Framer Motion.
+- **Premium UI/UX:** A bespoke Bridgement-inspired design system featuring deep navy surfaces (`#010844`), signature magenta CTAs (`#D20C54`), cyan accents (`#00C3F0`), crisp hairline borders, and full dark/light mode responsiveness.
 
 ## 🛠️ Architecture & Technology Stack
 

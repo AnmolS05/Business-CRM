@@ -27,9 +27,9 @@ import { DynamicChartData, ChartDataset } from '../types';
 import { UploadDropzone } from './UploadDropzone';
 
 /**
- * Palette of colors assigned to dynamic chart datasets.
+ * Palette of colors assigned to dynamic chart datasets using Bridgement design tokens.
  */
-const CHART_COLORS = ['#3b82f6', '#fbbf24', '#3b82f6', '#a855f7', '#ec4899', '#06b6d4'];
+const CHART_COLORS = ['#D20C54', '#00C3F0', '#172597', '#5BD6F5', '#99AFFD', '#545B6D'];
 
 interface DocumentParserProps {
   isDarkMode?: boolean;
@@ -46,6 +46,8 @@ export const DocumentParser: React.FC<DocumentParserProps> = ({ isDarkMode = fal
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [markdownSummary, setMarkdownSummary] = useState<string | null>(null);
+  const [part2Header, setPart2Header] = useState<string>('Part 2: Visual Comparison');
+  const [part2Body, setPart2Body] = useState<string>('');
   const [chartData, setChartData] = useState<DynamicChartData | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [loadingStage, setLoadingStage] = useState<number>(0);
@@ -83,16 +85,24 @@ export const DocumentParser: React.FC<DocumentParserProps> = ({ isDarkMode = fal
   };
 
   /**
-   * Parses raw Gemini 2.5 Flash Lite response text to extract clean Markdown and embedded JSON chart structures.
+   * Parses raw Gemini response text to extract clean Part 1 markdown, Part 2 section headers, and embedded JSON chart structures.
    *
-   * @param {string} rawText Raw text string returned by Gemini 2.5 Flash Lite API model.
-   * @returns {{ cleanText: string; parsedChart: DynamicChartData | null }} Separated markdown text and chart payload.
+   * @param {string} rawText Raw text string returned by Gemini API model.
+   * @returns {{ part1Text: string; part2Header: string; part2Body: string; parsedChart: DynamicChartData | null }} Separated markdown text, Part 2 metadata, and chart payload.
    */
-  const parseResponse = (rawText: string): { cleanText: string; parsedChart: DynamicChartData | null } => {
-    if (!rawText) return { cleanText: '', parsedChart: null };
+  const parseResponse = (
+    rawText: string
+  ): {
+    part1Text: string;
+    part2Header: string;
+    part2Body: string;
+    parsedChart: DynamicChartData | null;
+  } => {
+    if (!rawText) return { part1Text: '', part2Header: '', part2Body: '', parsedChart: null };
 
     const jsonRegex = /```json\s*([\s\S]*?)\s*```/i;
     const match = rawText.match(jsonRegex);
+    let parsedChart: DynamicChartData | null = null;
 
     if (match && match[1]) {
       try {
@@ -106,23 +116,42 @@ export const DocumentParser: React.FC<DocumentParserProps> = ({ isDarkMode = fal
           Array.isArray(parsed.datasets) &&
           parsed.datasets.length > 0
         ) {
-          const cleanText = rawText.replace(jsonRegex, '').trim();
-          return {
-            cleanText,
-            parsedChart: {
-              chartTitle: parsed.chartTitle || 'Financial Data Comparison',
-              chartType: parsed.chartType === 'line' ? 'line' : 'bar',
-              labels: parsed.labels,
-              datasets: parsed.datasets,
-            },
+          parsedChart = {
+            chartTitle: parsed.chartTitle || 'Financial Data Comparison',
+            chartType: parsed.chartType === 'line' ? 'line' : 'bar',
+            labels: parsed.labels,
+            datasets: parsed.datasets,
           };
         }
       } catch (e) {
-        console.warn('Could not parse Gemini 2.5 Flash Lite chart JSON structure:', e);
+        console.warn('Could not parse Gemini chart JSON structure:', e);
       }
     }
 
-    return { cleanText: rawText, parsedChart: null };
+    // Split text into Part 1 and Part 2 sections
+    const part2Regex = /(?:^|\n)(#{1,4}\s*(?:PART|Part)\s*2[^\n]*|(?:\*\*|__)?(?:PART|Part)\s*2(?:\*\*|__)?[^\n]*)([\s\S]*)$/i;
+    const part2Match = rawText.match(part2Regex);
+
+    if (part2Match && part2Match.index !== undefined) {
+      const part1Text = rawText.substring(0, part2Match.index).trim();
+      const rawHeader = part2Match[1].replace(/^#+\s*/, '').replace(/^[*_]+|[*_]+$/g, '').trim();
+      const part2Body = part2Match[2].replace(jsonRegex, '').trim();
+
+      return {
+        part1Text: part1Text || rawText.replace(jsonRegex, '').trim(),
+        part2Header: rawHeader || 'Part 2: Visual Comparison',
+        part2Body,
+        parsedChart,
+      };
+    }
+
+    const cleanText = rawText.replace(jsonRegex, '').trim();
+    return {
+      part1Text: cleanText,
+      part2Header: parsedChart ? 'Part 2: Visual Comparison' : '',
+      part2Body: '',
+      parsedChart,
+    };
   };
 
   /**
@@ -135,6 +164,8 @@ export const DocumentParser: React.FC<DocumentParserProps> = ({ isDarkMode = fal
     setLoadingStage(0);
     setError(null);
     setMarkdownSummary(null);
+    setPart2Header('Part 2: Visual Comparison');
+    setPart2Body('');
     setChartData(null);
     setFileName(fileToAnalyze.name);
 
@@ -145,8 +176,10 @@ export const DocumentParser: React.FC<DocumentParserProps> = ({ isDarkMode = fal
 
     try {
       const data = await analyzeDocumentApi(fileToAnalyze);
-      const { cleanText, parsedChart } = parseResponse(data.markdownSummary);
-      setMarkdownSummary(cleanText);
+      const { part1Text, part2Header: header, part2Body: body, parsedChart } = parseResponse(data.markdownSummary);
+      setMarkdownSummary(part1Text);
+      setPart2Header(header);
+      setPart2Body(body);
       setChartData(parsedChart);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error analyzing document';
@@ -231,16 +264,19 @@ Comparison across Categories (Projected vs Actual):
 
   /**
    * Tooltip component formatting raw numbers in dynamic charts.
+   *
+   * @param {any} props Tooltip active payload and label properties.
+   * @returns {React.ReactElement | null} Formatted tooltip element.
    */
   const CustomChartTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 p-3 rounded-lg shadow-xl border border-gray-200 dark:border-slate-700 text-xs space-y-1">
-          <p className="font-serif font-semibold border-b border-gray-100 dark:border-slate-700 pb-1 text-gray-900 dark:text-slate-100">{label}</p>
+        <div className="bg-[#010844]/95 text-[#FDF5F8] p-3.5 rounded-[12px] shadow-2xl border border-white/10 text-xs space-y-1.5 min-w-[180px]">
+          <p className="font-heading font-bold border-b border-white/10 pb-1.5 text-[#FDF5F8]">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} style={{ color: entry.color }} className="flex justify-between gap-4 font-mono">
-              <span>{entry.name}:</span>
-              <span className="font-semibold">{formatINR(entry.value)} ({formatLakhsCrores(entry.value)})</span>
+              <span className="text-[#CBD5E1]">{entry.name}:</span>
+              <span className="font-bold">{formatINR(entry.value)} ({formatLakhsCrores(entry.value)})</span>
             </p>
           ))}
         </div>
@@ -248,54 +284,49 @@ Comparison across Categories (Projected vs Actual):
     }
     return null;
   };
-  const gridStroke = isDarkMode ? '#334155' : '#f1f5f9';
-  const axisStroke = isDarkMode ? '#94a3b8' : '#64748b';
+  const gridStroke = isDarkMode ? 'rgba(255, 255, 255, 0.08)' : '#EAF1FF';
+  const axisStroke = '#969CAF';
 
   return (
     <div className="space-y-6">
       {/* Header Info */}
-      <div className="relative overflow-hidden bg-[#0a0f1c]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-[2.5rem] p-8 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(79,70,229,0.15)] hover:border-indigo-500/40 transition-all duration-500 group">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
-        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
-        
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-          <div className="flex items-center gap-6">
-            <div className="p-4 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-[1.25rem] shadow-inner flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all duration-500">
-              <Zap className="w-8 h-8 stroke-[2.5] group-hover:animate-pulse" />
-            </div>
-            <div>
-              <h2 className="text-3xl font-serif font-black text-white tracking-tight drop-shadow-md">
-                Gemini 3.1 Flash Lite "Drop & Analyze"
-              </h2>
-              <p className="text-[11px] font-black uppercase tracking-widest text-slate-400 mt-3 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                Extract insights, breakdowns, and dynamic interactive charts
-              </p>
-            </div>
+      <div className="card-surface p-7 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 group">
+        <div className="flex items-center gap-4">
+          <div className="w-11 h-11 rounded-[7.2px] bg-[#D20C54]/10 dark:bg-[#D20C54]/20 text-[#D20C54] border border-[#D20C54]/20 flex items-center justify-center shrink-0 transition-transform group-hover:scale-105">
+            <Zap className="w-6 h-6 stroke-[2.5]" />
           </div>
+          <div>
+            <h2 className="text-2xl font-heading font-bold text-[#545B6D] dark:text-[#FDF5F8] tracking-[-0.03em]">
+              Gemini 3.1 Flash Lite "Drop & Analyze"
+            </h2>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#969CAF] mt-1 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00C3F0] animate-pulse"></span>
+              Extract insights, breakdowns, and dynamic interactive charts
+            </p>
+          </div>
+        </div>
 
-          {/* Quick Sample Buttons */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50 shadow-inner backdrop-blur-sm group/samples">
-            <span className="text-slate-400 font-black flex items-center gap-2 text-[10px] uppercase tracking-widest pl-2 group-hover/samples:text-slate-300 transition-colors">
-              <Sparkles className="w-4 h-4 text-orange-400" />
-              Try Samples
-            </span>
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleSampleDoc('invoice')}
-                disabled={loading}
-                className="px-5 py-2.5 bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-slate-200 hover:text-white rounded-xl font-bold transition-all text-xs shadow-sm hover:shadow-indigo-500/20 hover:scale-105 active:scale-95 whitespace-nowrap"
-              >
-                Invoice (₹26.55L)
-              </button>
-              <button
-                onClick={() => handleSampleDoc('report')}
-                disabled={loading}
-                className="px-5 py-2.5 bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-slate-200 hover:text-white rounded-xl font-bold transition-all text-xs shadow-sm hover:shadow-indigo-500/20 hover:scale-105 active:scale-95 whitespace-nowrap"
-              >
-                Q2 Report (₹1.2Cr)
-              </button>
-            </div>
+        {/* Quick Sample Buttons */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 bg-[#FCFBF9] dark:bg-[#05081E]/60 p-3 rounded-[7.2px] border border-[#D6DAE3]/60 dark:border-white/10">
+          <span className="text-[#969CAF] font-bold flex items-center gap-1.5 text-[11px] uppercase tracking-wider pl-1">
+            <Sparkles className="w-3.5 h-3.5 text-[#00C3F0]" />
+            Try Samples
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleSampleDoc('invoice')}
+              disabled={loading}
+              className="btn-secondary h-[36px] px-3.5 text-xs inline-flex items-center"
+            >
+              Invoice (₹26.55L)
+            </button>
+            <button
+              onClick={() => handleSampleDoc('report')}
+              disabled={loading}
+              className="btn-secondary h-[36px] px-3.5 text-xs inline-flex items-center"
+            >
+              Q2 Report (₹1.2Cr)
+            </button>
           </div>
         </div>
       </div>
@@ -310,36 +341,35 @@ Comparison across Categories (Projected vs Actual):
 
       {/* Processing Loader */}
       {loading && (
-        <div className="relative bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-indigo-100/50 dark:border-slate-800 rounded-[2.5rem] p-12 text-center shadow-2xl dark:shadow-none animate-in fade-in zoom-in-95 duration-500 overflow-hidden">
-          <div className="absolute inset-0 bg-indigo-500/10 blur-[100px] rounded-full animate-pulse pointer-events-none" />
-          <div className="relative z-10 space-y-8 max-w-lg mx-auto">
-            <div className="relative w-20 h-20 mx-auto">
-              <div className="w-20 h-20 border-[4px] border-indigo-100 dark:border-blue-900 rounded-full" />
-              <div className="w-20 h-20 border-[4px] border-indigo-500 dark:border-blue-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
+        <div className="card-surface p-10 text-center rounded-[12px] animate-in fade-in zoom-in-95 duration-300">
+          <div className="space-y-6 max-w-md mx-auto">
+            <div className="relative w-14 h-14 mx-auto">
+              <div className="w-14 h-14 border-[3px] border-[#EAF1FF] dark:border-white/10 rounded-full" />
+              <div className="w-14 h-14 border-[3px] border-[#D20C54] border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
             </div>
             <div>
-              <h4 className="font-serif font-black text-2xl text-gray-900 dark:text-slate-100 tracking-tight">
-                Gemini 2.5 Flash Lite Synthesizing...
+              <h4 className="font-heading font-bold text-xl text-[#545B6D] dark:text-[#FDF5F8] tracking-[-0.03em]">
+                Gemini 3.1 Flash Lite Synthesizing...
               </h4>
             </div>
             
             {/* Sequential Progress Indicators */}
-            <div className="space-y-4 pt-4 text-left">
+            <div className="space-y-3 pt-2 text-left">
               {[
                 { stage: 0, text: 'Uploading secure document payload...' },
                 { stage: 1, text: 'Processing multi-modal structures...' },
                 { stage: 2, text: 'Extracting semantic charts & JSON...' },
                 { stage: 3, text: 'Finalizing actionable business insights...' }
               ].map((step) => (
-                <div key={step.stage} className={`flex items-center gap-4 transition-all duration-500 ${loadingStage >= step.stage ? 'opacity-100 translate-x-0' : 'opacity-30 -translate-x-4'}`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 ${loadingStage > step.stage ? 'bg-emerald-500 border-emerald-500 text-white' : loadingStage === step.stage ? 'bg-indigo-100 border-indigo-500 text-indigo-500' : 'border-gray-300 dark:border-slate-700 text-transparent'}`}>
+                <div key={step.stage} className={`flex items-center gap-3 transition-all duration-300 ${loadingStage >= step.stage ? 'opacity-100 translate-x-0' : 'opacity-40 -translate-x-2'}`}>
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 border-2 ${loadingStage > step.stage ? 'bg-[#00C3F0] border-[#00C3F0] text-[#010844]' : loadingStage === step.stage ? 'bg-[#D20C54]/10 border-[#D20C54] text-[#D20C54]' : 'border-[#D6DAE3] dark:border-white/20 text-transparent'}`}>
                     {loadingStage > step.stage ? (
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                     ) : loadingStage === step.stage ? (
-                      <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#D20C54] animate-pulse" />
                     ) : null}
                   </div>
-                  <span className={`text-sm font-bold tracking-wide ${loadingStage >= step.stage ? 'text-gray-900 dark:text-slate-200' : 'text-gray-400 dark:text-slate-600'}`}>
+                  <span className={`text-xs font-semibold tracking-wide ${loadingStage >= step.stage ? 'text-[#545B6D] dark:text-[#CBD5E1]' : 'text-[#969CAF]'}`}>
                     {step.text}
                   </span>
                 </div>
@@ -351,97 +381,110 @@ Comparison across Categories (Projected vs Actual):
 
       {/* Error state */}
       {error && (
-        <div className="p-6 bg-rose-50/80 dark:bg-rose-950/40 backdrop-blur-md border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-400 rounded-2xl text-sm font-bold flex items-center gap-3 shadow-inner">
-          <AlertCircle className="w-6 h-6 shrink-0 text-rose-500" />
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-rose-700 dark:text-rose-400 rounded-[7.2px] text-xs font-semibold flex items-center gap-2.5">
+          <AlertCircle className="w-5 h-5 shrink-0 text-rose-500" />
           <span>{error}</span>
         </div>
       )}
 
       {/* Analysis Result Card */}
       {markdownSummary && !loading && (
-        <div className="relative group bg-white/95 dark:bg-slate-900/90 backdrop-blur-2xl border border-indigo-200/80 dark:border-blue-800/60 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-500/10 dark:shadow-none hover:shadow-indigo-500/20 transition-all duration-500 animate-in fade-in slide-in-from-bottom-8 mt-10 overflow-hidden">
-          {/* Success Ambient Glow */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 dark:bg-blue-500/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-indigo-500/15 transition-all duration-700" />
-          
-          <div className="relative z-10 flex flex-wrap justify-between items-center border-b border-gray-100/80 dark:border-slate-800/80 pb-8 mb-8 gap-6">
-            <div className="flex items-center gap-8">
-              <div className="p-5 bg-indigo-50/80 dark:bg-blue-900/40 text-indigo-600 dark:text-blue-400 rounded-[1.5rem] border border-indigo-100 dark:border-blue-800/60 shadow-inner flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                <FileCheck className="w-10 h-10 stroke-[3]" />
+        <div className="card-surface p-8 sm:p-10 rounded-[12px] animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="flex flex-wrap justify-between items-center border-b border-[#D6DAE3]/60 dark:border-white/10 pb-6 mb-6 gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-[7.2px] bg-[#00C3F0]/10 dark:bg-[#00C3F0]/20 text-[#00C3F0] flex items-center justify-center border border-[#00C3F0]/20">
+                <FileCheck className="w-6 h-6 stroke-[2.5]" />
               </div>
               <div>
-                <h3 className="font-serif font-black text-4xl text-gray-900 dark:text-slate-100 tracking-tight">
+                <h3 className="font-heading font-bold text-2xl text-[#545B6D] dark:text-[#FDF5F8] tracking-[-0.03em]">
                   Analysis Complete
                 </h3>
-                <div className="text-[11px] font-black text-gray-400 dark:text-slate-500 flex items-center gap-2 mt-2 uppercase tracking-widest">
-                  <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.9)]" />
-                  Source Document: <span className="text-gray-900 dark:text-slate-300 font-mono tracking-normal normal-case text-xs">{fileName}</span>
+                <div className="text-xs font-semibold text-[#969CAF] flex items-center gap-2 mt-0.5 uppercase tracking-wider">
+                  <span className="w-2 h-2 bg-[#00C3F0] rounded-full animate-pulse" />
+                  Source: <span className="text-[#545B6D] dark:text-[#CBD5E1] font-mono tracking-normal normal-case">{fileName}</span>
                 </div>
               </div>
             </div>
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-8 py-4 text-[13px] font-black uppercase tracking-widest text-indigo-700 dark:text-blue-300 bg-indigo-50 dark:bg-blue-900/30 border-2 border-indigo-200 dark:border-blue-800/50 rounded-2xl hover:bg-indigo-100 hover:text-indigo-800 dark:hover:bg-blue-800/60 transition-all hover:scale-105 active:scale-95 shadow-sm flex items-center gap-2"
+              className="btn-secondary h-[40px] px-4 text-xs inline-flex items-center"
             >
               Analyze Another Document
             </button>
           </div>
 
-          {/* Dynamic Interactive Recharts Visual Comparison */}
+          {/* Section 1: Written Markdown Analysis (Part 1) */}
+          {markdownSummary && (
+            <div className="p-6 bg-[#FCFBF9]/60 dark:bg-[#05081E]/40 rounded-[12px] border border-[#D6DAE3]/50 dark:border-white/10 mb-6">
+              <div className="document-markdown prose prose-sm dark:prose-invert max-w-none font-sans leading-relaxed text-[#545B6D] dark:text-[#CBD5E1]">
+                <ReactMarkdown>{markdownSummary}</ReactMarkdown>
+              </div>
+            </div>
+          )}
+
+          {/* Section 2: Dynamic Interactive Recharts Visual Comparison (Part 2) */}
           {chartData && (
-            <div className="relative z-10 bg-gray-50/50 dark:bg-slate-950/40 border border-gray-200/80 dark:border-slate-800/80 rounded-3xl p-8 sm:p-10 mb-10 shadow-inner backdrop-blur-sm">
-              <div className="flex flex-wrap justify-between items-center pb-6 mb-10 border-b border-gray-200/60 dark:border-slate-700/60 gap-4">
-                <h4 className="font-serif font-black text-2xl text-gray-900 dark:text-slate-100 flex items-center gap-4 tracking-tight">
-                  {chartData.chartType === 'line' ? (
-                    <div className="p-3 rounded-2xl bg-white dark:bg-blue-900/40 text-indigo-600 dark:text-blue-400 shadow-sm border border-gray-100 dark:border-slate-700">
-                      <TrendingUp className="w-6 h-6 stroke-[3]" />
-                    </div>
-                  ) : (
-                    <div className="p-3 rounded-2xl bg-white dark:bg-blue-900/40 text-indigo-600 dark:text-blue-400 shadow-sm border border-gray-100 dark:border-slate-700">
-                      <BarChart3 className="w-6 h-6 stroke-[3]" />
-                    </div>
-                  )}
-                  {chartData.chartTitle}
-                </h4>
-                <span className="text-[11px] font-black text-indigo-600 dark:text-blue-400 bg-indigo-50/80 dark:bg-blue-900/40 px-4 py-2 rounded-xl border border-indigo-100 dark:border-blue-800/50 uppercase tracking-widest shadow-inner">
+            <div className="bg-[#FCFBF9]/80 dark:bg-[#05081E]/60 border border-[#D6DAE3]/60 dark:border-white/10 rounded-[12px] p-6 shadow-inner">
+              <div className="flex flex-wrap justify-between items-center pb-4 mb-4 border-b border-[#D6DAE3]/60 dark:border-white/10 gap-3">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-[#00C3F0] bg-[#00C3F0]/10 px-2.5 py-0.5 rounded-[7.2px] border border-[#00C3F0]/20 uppercase tracking-wider inline-block">
+                    {part2Header || 'Part 2: Visual Comparison'}
+                  </span>
+                  <h4 className="font-heading font-bold text-xl text-[#545B6D] dark:text-[#FDF5F8] flex items-center gap-3 tracking-[-0.03em]">
+                    {chartData.chartType === 'line' ? (
+                      <TrendingUp className="w-5 h-5 text-[#D20C54]" />
+                    ) : (
+                      <BarChart3 className="w-5 h-5 text-[#00C3F0]" />
+                    )}
+                    {chartData.chartTitle}
+                  </h4>
+                </div>
+                <span className="text-[11px] font-bold text-[#545B6D] dark:text-[#CBD5E1] bg-black/5 dark:bg-white/5 px-3 py-1 rounded-[7.2px] border border-[#D6DAE3]/60 dark:border-white/10 uppercase tracking-wider">
                   {chartData.chartType === 'line' ? 'Trend Analysis' : 'Comparison Chart'}
                 </span>
               </div>
 
-              <div className="h-96">
+              {part2Body && (
+                <div className="text-xs text-[#545B6D] dark:text-[#CBD5E1] font-medium mb-4 leading-relaxed document-markdown prose prose-sm dark:prose-invert max-w-none">
+                  <ReactMarkdown>{part2Body}</ReactMarkdown>
+                </div>
+              )}
+
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   {chartData.chartType === 'line' ? (
                     <LineChart data={rechartsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
-                      <XAxis dataKey="name" stroke={axisStroke} fontSize={12} tickLine={false} axisLine={false} dy={10} fontWeight={600} />
-                      <YAxis stroke={axisStroke} fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => formatLakhsCrores(v)} fontWeight={600} />
-                      <Tooltip content={<CustomChartTooltip />} cursor={{ stroke: gridStroke, strokeWidth: 2 }} />
-                      <Legend wrapperStyle={{ fontSize: '13px', fontWeight: 'bold', color: axisStroke, paddingTop: '24px' }} />
+                      <XAxis dataKey="name" stroke={axisStroke} fontSize={11} tickLine={false} axisLine={false} dy={8} fontWeight={600} />
+                      <YAxis stroke={axisStroke} fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => formatLakhsCrores(v)} fontWeight={600} />
+                      <Tooltip content={<CustomChartTooltip />} cursor={{ stroke: gridStroke, strokeWidth: 1.5 }} />
+                      <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', color: axisStroke, paddingTop: '16px' }} />
                       {chartData.datasets.map((dataset, idx) => (
                         <Line
                           key={dataset.label}
                           type="monotone"
                           dataKey={dataset.label}
                           stroke={CHART_COLORS[idx % CHART_COLORS.length]}
-                          strokeWidth={4}
-                          dot={{ r: 5, fill: CHART_COLORS[idx % CHART_COLORS.length], strokeWidth: 2, stroke: '#fff' }}
-                          activeDot={{ r: 8, strokeWidth: 0 }}
+                          strokeWidth={3}
+                          dot={{ r: 4, fill: CHART_COLORS[idx % CHART_COLORS.length], strokeWidth: 2, stroke: '#fff' }}
+                          activeDot={{ r: 6, strokeWidth: 0 }}
                         />
                       ))}
                     </LineChart>
                   ) : (
                     <BarChart data={rechartsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
-                      <XAxis dataKey="name" stroke={axisStroke} fontSize={12} tickLine={false} axisLine={false} dy={10} fontWeight={600} />
-                      <YAxis stroke={axisStroke} fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => formatLakhsCrores(v)} fontWeight={600} />
-                      <Tooltip content={<CustomChartTooltip />} cursor={{ fill: gridStroke, opacity: 0.4 }} />
-                      <Legend wrapperStyle={{ fontSize: '13px', fontWeight: 'bold', color: axisStroke, paddingTop: '24px' }} />
+                      <XAxis dataKey="name" stroke={axisStroke} fontSize={11} tickLine={false} axisLine={false} dy={8} fontWeight={600} />
+                      <YAxis stroke={axisStroke} fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => formatLakhsCrores(v)} fontWeight={600} />
+                      <Tooltip content={<CustomChartTooltip />} cursor={{ fill: '#D20C54', opacity: 0.05 }} />
+                      <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', color: axisStroke, paddingTop: '16px' }} />
                       {chartData.datasets.map((dataset, idx) => (
                         <Bar
                           key={dataset.label}
                           dataKey={dataset.label}
                           fill={CHART_COLORS[idx % CHART_COLORS.length]}
-                          radius={[6, 6, 0, 0]}
+                          radius={[4, 4, 0, 0]}
                         />
                       ))}
                     </BarChart>
@@ -450,13 +493,6 @@ Comparison across Categories (Projected vs Actual):
               </div>
             </div>
           )}
-
-          {/* Render Written Markdown Analysis */}
-          <div className="relative z-10 p-8 sm:p-10 bg-white/50 dark:bg-slate-950/40 rounded-3xl border border-indigo-100/50 dark:border-slate-800/80 shadow-inner backdrop-blur-md">
-            <div className="document-markdown prose prose-sm sm:prose-base dark:prose-invert max-w-none font-serif leading-[1.8] text-gray-800 dark:text-slate-300">
-              <ReactMarkdown>{markdownSummary}</ReactMarkdown>
-            </div>
-          </div>
         </div>
       )}
     </div>
